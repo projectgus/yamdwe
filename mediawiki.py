@@ -27,6 +27,15 @@ class Importer(object):
         revisions = self._query(query, [ 'pages', str(pageid), 'revisions' ])
         return revisions
 
+    def get_all_images(self):
+        """
+        Slurp all images down from the mediawiki instance, latest revision only
+
+        WARNING: Hits API hard, don't do this without knowledge/permission of wiki operator!!
+        """
+        query = {'list' : 'allimages'}
+        return self._query(query, [ 'allimages' ])
+
     def _query(self, args, path_to_result):
         """
         Make a Mediawiki API query that results a list of results,

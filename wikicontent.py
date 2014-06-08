@@ -1,4 +1,4 @@
-import re, string
+import re, string, dokuwiki
 
 def convert_pagecontent(content):
     """
@@ -44,28 +44,55 @@ def _convert_tables(content):
                 row[-1] += line
     return "\n".join(output)
 
+RE_MW_IMG_SCALE =  re.compile(r'\|x?(\d+(x\d+)?)px(\||$)')
+RE_MW_IMG_CENTER = re.compile(r'\|center(\||$)')
+RE_MW_IMG_LEFT =   re.compile(r'\|left(\||$)')
+RE_MW_IMG_RIGHT =  re.compile(r'\|right(\||$)')
+
+def convert_image_embed(match):
+    """
+    Convert an embedded image from a mediawiki embed to a dokuwiki embed (matched by patterns below)
+
+    Also matches some simpl embedding formats
+    """
+    imagename = dokuwiki.clean_id(match.group(1), keep_slashes=True)
+    options = match.group(2)
+
+    # look for size options
+    width_suffix = ""
+    # dokuwiki doesn't support by-height scaling, this gets translated as a by-width scale
+    match = re.search(RE_MW_IMG_SCALE, options)
+    if match is not None:
+        width_suffix = "?%s" % (match.group(1))
+
+    # look for alignment options
+    align_pre = ""
+    align_post = ""
+    if re.search(RE_MW_IMG_CENTER, options):
+        align_pre = " "
+        align_post = " "
+    elif re.search(RE_MW_IMG_LEFT, options):
+        align_post = " "
+    elif re.search(RE_MW_IMG_RIGHT, options):
+        align_pre = " "
+
+    return "{{%sfile:%s%s%s}}" % (align_pre, imagename, width_suffix, align_post)
+
+def convert_heading(match):
+    level = min(len(match.group(1)), 5)
+    syntax = "="*(6-level) # dokuwiki is opposite, more =s for higher level headings
+    title = match.group(2)
+    return "%s %s %s" % (syntax, title, syntax)
+
 """
-    The regex patterns and replacements used here were originally written as Perl oneliners
+    Most of the regex patterns and replacements used here were originally written as Perl oneliners
     by Johannes Buchner <buchner.johannes [at] gmx.at>
 
     Tuples are ( <regex to search for>, <replacement> ) as arguments to re.sub()
 """
 PATTERNS = [
     # Headings
-    (r'^[ ]*=([^=])', '<h1> \\1'),
-    (r'([^=])=[ ]*$', '\\1 </h1>'),
-    (r'^[ ]*==([^=])', '<h2> \\1'),
-    (r'([^=])==[ ]*$', '\\1 </h2>'),
-    (r'^[ ]*===([^=])', '<h3> \\1'),
-    (r'([^=])===[ ]*$', '\\1 </h3>'),
-    (r'^[ ]*====([^=])', '<h4> \\1'),
-    (r'([^=])====[ ]*$', '\\1 </h4>'),
-    (r'^[ ]*=====([^=])', '<h5> \\1'),
-    (r'([^=])=====[ ]*$', '\\1 </h5>'),
-    (r'^[ ]*======([^=])', '<h6> \\1'),
-    (r'([^=])======[ ]*$', '\\1 </h6>'),
-
-
+    (r'^([=]+) *([^=]+) *[=]+ *$', convert_heading),
     (r'</?h1>', '======'),
     (r'</?h2>', '====='),
     (r'</?h3>', '===='),
@@ -91,6 +118,11 @@ PATTERNS = [
     (r'([^\]])\]([^\]])', '\\1]]\\2'),
     (r'([^\]])\]$', '\\1]]'),
 
+    #[File:image] => {{file:image}}
+    (r'\[\[File:(.+?)(\|(.*))?\]\]', convert_image_embed),
+
+    #[Category:blah] => Nothing (could convert to the 'tag' plugin format if necessary)
+    (r'\[\[Category:(.+?)\]\]', ''),
 
     #[[url text]] => [[url|text]]
     (r'(\[\[[^| \]]*) ([^|\]]*\]\])', '\\1|\\2'),
@@ -98,6 +130,9 @@ PATTERNS = [
     # bold, italic
     (r"'''", "**"),
     (r"''", r"\\"),
+
+    # preformatted
+    (r"^ (.+)$", r'  \1'),
 
     # talks
     (r"^[ ]*:", ">"),
@@ -112,5 +147,5 @@ PATTERNS = [
     (r"</pre>", "</code>"),
     ]
 # precompile the regexes we're searching for
-PATTERNS = [ (re.compile(search), replace) for (search, replace) in PATTERNS]
+PATTERNS = [ (re.compile(search, re.MULTILINE), replace) for (search, replace) in PATTERNS]
 

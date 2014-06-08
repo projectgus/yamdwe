@@ -19,10 +19,18 @@ def main():
     importer = mediawiki.Importer(args.mediawiki)
     exporter = dokuwiki.Exporter(args.dokuwiki)
 
-    # Export all pages and page revisions
+    # Convert all pages and page revisions
     pages = importer.get_all_pages()
     print("Found %d pages to export" % len(pages))
     exporter.write_pages(pages)
+
+    # Bring over images
+    images = importer.get_all_images()
+    print("Found %d images to export" % len(images))
+    exporter.write_images(images)
+
+    # fix permissions on data directory if possible
+    exporter.fixup_permissions()
 
 
 # Parser for command line arguments

@@ -1,4 +1,4 @@
-import os, os.path, gzip, shutil, re
+import os, os.path, gzip, shutil, re, requests
 import wikicontent
 import simplemediawiki
 
@@ -28,17 +28,47 @@ class Exporter(object):
         """
         for page in pages:
             self._convert_page(page)
-        self._write_wikichanges()
-        self._fixup_permissions()
+        self._aggregate_changes(self.meta, "_dokuwiki.changes")
+
+    def write_images(self, images):
+        """
+        Given 'images' as a list of mediawiki image metadata API entries,
+        download and write out dokuwiki images. Does not bring over revisions.
+
+        Images are all written to the file: namespace, to match mediawiki.
+        """
+        filedir = os.path.join(self.data, "media", "file")
+        ensure_directory_exists(filedir)
+        filemeta = os.path.join(self.data, "media_meta", "file")
+        ensure_directory_exists(filemeta)
+        for image in images:
+            # download the image from the Mediawiki server
+            print("Downloading %s..." % image['name'])
+            r = requests.get(image['url'])
+            # write the actual image out to the data/file directory
+            name = clean_id(image['name'], False)
+            imagepath = os.path.join(filedir, name)
+            with open(imagepath, "wb") as f:
+                f.write(r.content)
+            # set modification time appropriately
+            timestamp = get_timestamp(image)
+            os.utime(imagepath, times=(timestamp,timestamp))
+            # write a .changes file out to the media_meta/file directory
+            changepath = os.path.join(filemeta, "%s.changes" % name)
+            with open(changepath, "w") as f:
+                fields = (str(timestamp), "::1", "C", "file:%s"%name, "", "created")
+                f.write("\t".join(fields) + "\r\n")
+        # aggregate all the new changes to the media_meta/_media.changes file
+        self._aggregate_changes(os.path.join(self.data, "media_meta"), "_media.changes")
 
     def _convert_page(self, page):
         """ Convert the supplied mediawiki page to a Dokuwiki page """
         print("Converting %d revisions of page '%s'..." %
               (len(page["revisions"]), page['title']))
-        # Sanitise the mediawiki pagename to something resemblign a dokuwiki pagename convention
+        # Sanitise the mediawiki pagename to something matching the dokuwiki pagename convention
         full_title = make_dokuwiki_pagename(page['title'])
 
-        # Mediawiki pagenames can contain /s, convert these to dokuwiki / paths on the filesystem
+        # Mediawiki pagenames can contain /s, convert these to dokuwiki / paths on the filesystem (becoming : namespaces in dokuwiki)
         subdir, pagename = os.path.split(full_title)
         pagedir = os.path.join(self.pages, subdir)
         metadir = os.path.join(self.meta, subdir)
@@ -52,41 +82,47 @@ class Exporter(object):
             is_current = (revision == revisions[-1])
             is_first = (revision == revisions[0])
             content = wikicontent.convert_pagecontent(revision["*"])
+            timestamp = get_timestamp(revision)
             # path to the .changes metafile
             changespath = os.path.join(metadir, "%s.changes"%pagename)
             # for current revision, create 'pages' .txt
             if is_current:
-                with open(os.path.join(pagedir, "%s.txt"%pagename), "w") as f:
+                txtpath = os.path.join(pagedir, "%s.txt"%pagename)
+                with open(txtpath, "w") as f:
                     f.write(content)
+                os.utime(txtpath, times=(timestamp,timestamp))
             # create gzipped attic revision
-            timestamp = int(simplemediawiki.MediaWiki.parse_date(revision['timestamp']).timestamp())
-            atticname = "%s.%d.txt.gz" % (pagename, timestamp)
+            atticname = "%s.%s.txt.gz" % (pagename, timestamp)
             atticpath = os.path.join(atticdir, atticname)
             with gzip.open(atticpath, "wb") as f:
                 f.write(content.encode())
+            os.utime(atticpath, times=(timestamp,timestamp))
             # append entry to page's 'changes' metadata index
             with open(changespath, "w" if is_first else "a") as f:
-                fields = (str(timestamp), "0.0.0.0", "C" if is_first else "E", full_title, revision["user"])
+                changes_title = full_title.replace("/", ":")
+                fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, revision["user"])
                 print("\t".join(fields), file=f)
 
 
-    def _write_wikichanges(self):
+    def _aggregate_changes(self, metadir, aggregate):
         """
-        Rebuild the wiki-wide changelong meta/_dokuwiki.changes
+        Rebuild the wiki-wide changelong from meta/ to meta/_dokuwiki.changes or
+        from media_meta to media_meta/_media.changes
 
         This is a Pythonified version of https://www.dokuwiki.org/tips:Recreate_Wiki_Change_Log
         """
         lines = []
-        for changesfile in os.listdir(self.meta):
-            if changesfile == "_dokuwiki.changes" or not changesfile.endswith(".changes"):
-                continue
-            with open(os.path.join(self.meta,changesfile), "r") as f:
-                lines += f.readlines()
+        for root, dirs, files in os.walk(metadir):
+            for changesfile in files:
+                if changesfile == aggregate or not changesfile.endswith(".changes"):
+                    continue
+                with open(os.path.join(root,changesfile), "r") as f:
+                    lines += f.readlines()
         lines = sorted(lines, key=lambda r: int(r.split("\t")[0]))
-        with open(os.path.join(self.meta, "_dokuwiki.changes"), "w") as f:
+        with open(os.path.join(metadir, aggregate), "w") as f:
             f.writelines(lines)
 
-    def _fixup_permissions(self):
+    def fixup_permissions(self):
         """ Fix permissions under the data directory
 
         This means applying the data directory's permissions and ownership to all underlying parts.
@@ -96,14 +132,40 @@ class Exporter(object):
         stat = os.stat(self.data)
         try:
             for root, dirs, files in os.walk(self.data):
-                for name in files + dirs:
+                for name in files:
+                    path = os.path.join(root, name)
+                    os.chmod(path, stat.st_mode & 0o666)
+                    os.chown(path, stat.st_uid, stat.st_gid)
+                for name in dirs:
                     path = os.path.join(root, name)
                     os.chmod(path, stat.st_mode)
                     os.chown(path, stat.st_uid, stat.st_gid)
+
         except OSError:
             print("WARNING: Failed to set permissions under the data directory (not owned by process?) May need to be manually fixed.")
 
 
+
+
+def clean_id(name, keep_slashes):
+    """
+    Return a 'clean' dokuwiki-compliant name. Based on the cleanID() PHP function in inc/pageutils.php
+    """
+    main,ext = os.path.splitext(name)
+    if keep_slashes:
+        regex = r'[^\w/]+'
+    else:
+        regex = r'\W+'
+    result = (re.sub(regex, '_', main) + ext).lower()
+    while "__" in result:
+        result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
+    return result
+
+def get_timestamp(node):
+    """
+    Return a dokuwiki-Comaptible Unix int timestamp for a mediawiki API page/image/revision
+    """
+    return int(simplemediawiki.MediaWiki.parse_date(node['timestamp']).timestamp())
 
 def ensure_directory_exists(path):
     if not os.path.isdir(path):
@@ -114,7 +176,7 @@ def make_dokuwiki_pagename(mediawiki_name):
     Convert a canonical mediawiki pagename to a dokuwiki pagename
     """
     result = mediawiki_name.replace(" ","_")
-    return camel_to_underscore(result)
+    return clean_id(camel_to_underscore(result), True)
 
 def camel_to_underscore(camelcase):
     """
