@@ -1,13 +1,48 @@
-import re
+import re, string
 
 def convert_pagecontent(content):
     """
     Convert a string in Mediawiki content format to a string in
     Dokuwiki content format.
     """
+    content = _convert_tables(content)
     for (search, replace) in PATTERNS:
         content = re.sub(search, replace, content)
     return content
+
+def _convert_tables(content):
+    """
+    Convert simple wikitables to dokuwiki tables, in a fairly braindead way (not a proper parser)
+
+    Doesn't support || or | single row syntax yet, will probably mangle multirow cells
+    """
+    table = None
+    row = None
+    output = []
+    for line in content.split("\n"):
+        if table is None: # not in a table
+            if line.startswith("{|"):
+                table = []
+                row = None
+            else:
+                output.append(line)
+        else: # in a table
+            if line.startswith("|-"): # new row
+                if row is not None:
+                    table.append(row)
+                row = []
+            elif line.startswith("|}"): # end of table
+                table.append(row)
+                # output table in dokuwiki format
+                for row in table:
+                    output.append("|%s|" % "|".join(cell.ljust(16) for cell in row))
+                row = None
+                table = None
+            elif line.startswith("|") or line.startswith("!"): # cell or header
+                row.append(line[1:])
+            else: # don't know what this is(!), probably a multirow cell(?) so add to previous cell
+                row[-1] += line
+    return "\n".join(output)
 
 """
     The regex patterns and replacements used here were originally written as Perl oneliners
@@ -77,6 +112,5 @@ PATTERNS = [
     (r"</pre>", "</code>"),
     ]
 # precompile the regexes we're searching for
-print([x for x in PATTERNS if len(x) != 2])
 PATTERNS = [ (re.compile(search), replace) for (search, replace) in PATTERNS]
 

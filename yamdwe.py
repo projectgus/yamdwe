@@ -9,19 +9,21 @@ sudo pip3 install http://pypi.python.org/packages/source/s/simplemediawiki/simpl
 """
 
 import argparse, sys
-from simplemediawiki import MediaWiki
+
 from pprint import pprint
 import mediawiki, dokuwiki
 
 
 def main():
     args = arguments.parse_args()
-    mw = MediaWiki(args.mediawiki)
-    pages = mediawiki.get_all_pages(mw)[:4]
+    importer = mediawiki.Importer(args.mediawiki)
+    exporter = dokuwiki.Exporter(args.dokuwiki)
+
+    # Export all pages and page revisions
+    pages = importer.get_all_pages()
     print("Found %d pages to export" % len(pages))
-    for page in pages:
-        page["revisions"] = mediawiki.get_revisions(mw, page)
-    dokuwiki.write_dokuwiki(args.dokuwiki, pages)
+    exporter.write_pages(pages)
+
 
 # Parser for command line arguments
 arguments = argparse.ArgumentParser(description='Convert a Mediawiki installation to a brand new Dokuwiki installation.')
