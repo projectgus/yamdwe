@@ -87,6 +87,17 @@ def convert_heading(match):
     title = match.group(2)
     return "%s %s %s" % (syntax, title, syntax)
 
+
+def convert_url(match):
+    print(match.groups())
+    url = match.group(1)
+    title = match.group(3)
+    if not url.startswith("http"):
+        # internal wiki URLs get reformatted for new page names
+        url = dokuwiki.clean_id(url, keep_slashes=True).replace('/',':')
+    return "[[%s|%s]]" % (url, title)
+
+
 """
     Most of the regex patterns and replacements used here were originally written as Perl oneliners
     by Johannes Buchner <buchner.johannes [at] gmx.at>
@@ -103,17 +114,20 @@ PATTERNS = [
     (r'</?h5>', '=='),
     (r'</?h6>', '='),
 
+    # preformatted
+    (r"^ (.+)$", r'  \1'),
+
     # lists
-    (r'^[\*#]{4}\*', '          * '),
-    (r'^[\*#]{3}\*', '        * '),
-    (r'^[\*#]{2}\*', '      * '),
-    (r'^[\*#]{1}\*', '    * '),
-    (r'^\*', '  * '),
-    (r'^[\*#]{4}#', '          - '),
-    (r'^[\*\#]{3}\#', '      - '),
+    (r'^[\*#]{4}\*',  '      * '),
+    (r'^[\*#]{3}\*',  '     * '),
+    (r'^[\*#]{2}\*',  '    * '),
+    (r'^[\*#]{1}\*',  '   * '),
+    (r'^\*',          '  * '),
+    (r'^[\*#]{4}#',   '      - '),
+    (r'^[\*\#]{3}\#', '     - '),
     (r'^[\*\#]{2}\#', '    - '),
-    (r'^[\*\#]{1}\#', '  - '),
-    (r'^\#', '  - '),
+    (r'^[\*\#]{1}\#', '   - '),
+    (r'^\#',          '  - '),
 
     #[link] => [[link]]
     (r'([^\[])\[([^\[])', '\\1[[\\2'),
@@ -128,14 +142,11 @@ PATTERNS = [
     (r'\[\[Category:(.+?)\]\]', ''),
 
     #[[url text]] => [[url|text]]
-    (r'(\[\[[^| \]]*) ([^|\]]*\]\])', '\\1|\\2'),
+    (r'\[\[([^| \]]*)( ([^|\]]*))\]\]', convert_url),
 
     # bold, italic
     (r"'''", "**"),
     (r"''", r"\\"),
-
-    # preformatted
-    (r"^ (.+)$", r'  \1'),
 
     # talks
     (r"^[ ]*:", ">"),

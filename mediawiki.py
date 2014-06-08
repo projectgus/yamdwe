@@ -12,7 +12,7 @@ class Importer(object):
         WARNING: Hits API hard, don't do this without knowledge/permission of wiki operator!!
         """
         query = {'list' : 'allpages'}
-        pages = self._query(query, [ 'allpages' ])[:4]
+        pages = self._query(query, [ 'allpages' ])
         for page in pages:
             page["revisions"] = self._get_revisions(page)
         return pages
