@@ -23,7 +23,7 @@ def _convert_tables(content):
         if table is None: # not in a table
             if line.startswith("{|"):
                 table = []
-                row = None
+                row = []
             else:
                 output.append(line)
         else: # in a table
@@ -57,6 +57,9 @@ def convert_image_embed(match):
     """
     imagename = dokuwiki.clean_id(match.group(1), keep_slashes=True)
     options = match.group(2)
+
+    if options is None:
+        options = ""
 
     # look for size options
     width_suffix = ""
@@ -106,10 +109,10 @@ PATTERNS = [
     (r'^[\*#]{2}\*', '      * '),
     (r'^[\*#]{1}\*', '    * '),
     (r'^\*', '  * '),
-    (r'^[\*#]{4}#', '          \- '),
-    (r'^[\*\#]{3}\#', '      \- '),
-    (r'^[\*\#]{2}\#', '    \- '),
-    (r'^[\*\#]{1}\#', '  \- '),
+    (r'^[\*#]{4}#', '          - '),
+    (r'^[\*\#]{3}\#', '      - '),
+    (r'^[\*\#]{2}\#', '    - '),
+    (r'^[\*\#]{1}\#', '  - '),
     (r'^\#', '  - '),
 
     #[link] => [[link]]
@@ -118,7 +121,7 @@ PATTERNS = [
     (r'([^\]])\]([^\]])', '\\1]]\\2'),
     (r'([^\]])\]$', '\\1]]'),
 
-    #[File:image] => {{file:image}}
+    #[[File:image]] => {{file:image}}
     (r'\[\[File:(.+?)(\|(.*))?\]\]', convert_image_embed),
 
     #[Category:blah] => Nothing (could convert to the 'tag' plugin format if necessary)
