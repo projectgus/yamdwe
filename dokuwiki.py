@@ -1,4 +1,5 @@
-import os, os.path, gzip, shutil, re, requests
+from __future__ import print_function, unicode_literals, absolute_import, division
+import os, os.path, gzip, shutil, re, requests, time
 import wikicontent
 import simplemediawiki
 
@@ -46,13 +47,13 @@ class Exporter(object):
             print("Downloading %s..." % image['name'])
             r = requests.get(image['url'])
             # write the actual image out to the data/file directory
-            name = clean_id(image['name'], False)
+            name = make_dokuwiki_pagename(image['name'])
             imagepath = os.path.join(filedir, name)
             with open(imagepath, "wb") as f:
                 f.write(r.content)
             # set modification time appropriately
             timestamp = get_timestamp(image)
-            os.utime(imagepath, times=(timestamp,timestamp))
+            os.utime(imagepath, (timestamp,timestamp))
             # write a .changes file out to the media_meta/file directory
             changepath = os.path.join(filemeta, "%s.changes" % name)
             with open(changepath, "w") as f:
@@ -68,8 +69,8 @@ class Exporter(object):
         # Sanitise the mediawiki pagename to something matching the dokuwiki pagename convention
         full_title = make_dokuwiki_pagename(page['title'])
 
-        # Mediawiki pagenames can contain /s, convert these to dokuwiki / paths on the filesystem (becoming : namespaces in dokuwiki)
-        subdir, pagename = os.path.split(full_title)
+        # Mediawiki pagenames can contain namespace :s, convert these to dokuwiki / paths on the filesystem (becoming : namespaces in dokuwiki)
+        subdir, pagename = os.path.split(full_title.replace(':','/'))
         pagedir = os.path.join(self.pages, subdir)
         metadir = os.path.join(self.meta, subdir)
         atticdir = os.path.join(self.attic, subdir)
@@ -81,7 +82,7 @@ class Exporter(object):
         for revision in revisions:
             is_current = (revision == revisions[-1])
             is_first = (revision == revisions[0])
-            content = wikicontent.convert_pagecontent(revision["*"])
+            content = wikicontent.convert_pagecontent(full_title, revision["*"])
             timestamp = get_timestamp(revision)
             # path to the .changes metafile
             changespath = os.path.join(metadir, "%s.changes"%pagename)
@@ -89,14 +90,14 @@ class Exporter(object):
             if is_current:
                 txtpath = os.path.join(pagedir, "%s.txt"%pagename)
                 with open(txtpath, "w") as f:
-                    f.write(content)
-                os.utime(txtpath, times=(timestamp,timestamp))
+                    f.write(content.encode("utf-8"))
+                os.utime(txtpath, (timestamp,timestamp))
             # create gzipped attic revision
             atticname = "%s.%s.txt.gz" % (pagename, timestamp)
             atticpath = os.path.join(atticdir, atticname)
             with gzip.open(atticpath, "wb") as f:
-                f.write(content.encode())
-            os.utime(atticpath, times=(timestamp,timestamp))
+                f.write(content.encode("utf-8"))
+            os.utime(atticpath, (timestamp,timestamp))
             # append entry to page's 'changes' metadata index
             with open(changespath, "w" if is_first else "a") as f:
                 changes_title = full_title.replace("/", ":")
@@ -147,16 +148,15 @@ class Exporter(object):
 
 
 
-def clean_id(name, keep_slashes):
+def clean_id(name):
     """
     Return a 'clean' dokuwiki-compliant name. Based on the cleanID() PHP function in inc/pageutils.php
+
+    Ignores both slashes and colons as valid namespace choices (to convert slashes to colons,
+    call make_dokuwiki_pagename)
     """
     main,ext = os.path.splitext(name)
-    if keep_slashes:
-        regex = r'[^\w/]+'
-    else:
-        regex = r'\W+'
-    result = (re.sub(regex, '_', main) + ext).lower()
+    result = (re.sub(r'[^\w/:]+', '_', main) + ext).lower()
     while "__" in result:
         result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
     return result
@@ -165,7 +165,8 @@ def get_timestamp(node):
     """
     Return a dokuwiki-Comaptible Unix int timestamp for a mediawiki API page/image/revision
     """
-    return int(simplemediawiki.MediaWiki.parse_date(node['timestamp']).timestamp())
+    dt = simplemediawiki.MediaWiki.parse_date(node['timestamp'])
+    return int(time.mktime(dt.timetuple()))
 
 def ensure_directory_exists(path):
     if not os.path.isdir(path):
@@ -174,14 +175,17 @@ def ensure_directory_exists(path):
 def make_dokuwiki_pagename(mediawiki_name):
     """
     Convert a canonical mediawiki pagename to a dokuwiki pagename
+
+    Any namespacing that is in the form of a / is replaced with a :
     """
     result = mediawiki_name.replace(" ","_")
-    return clean_id(camel_to_underscore(result), True)
+    return clean_id(camel_to_underscore(result)).replace("/",":")
 
 def camel_to_underscore(camelcase):
     """
     Convert a camelcased string to underscore_delimited (tweaked from this StackOverflow answer)
     http://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-camel-case
     """
-    s1 = re.sub('(^_)([A-Z][a-z]+)', r'\1_\2', camelcase)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()    
+    s1 = re.sub('(^/_)([A-Z][a-z]+)', r'\1_\2', camelcase)
+    s2 = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    return s2

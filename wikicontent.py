@@ -1,165 +1,183 @@
-import re, string, dokuwiki
+from __future__ import print_function, unicode_literals, absolute_import, division
+import re, string, dokuwiki, visitor
+from mwlib.parser import *
+from mwlib import uparser
 
-def convert_pagecontent(content):
+def convert_pagecontent(title, content):
     """
     Convert a string in Mediawiki content format to a string in
     Dokuwiki content format.
     """
-    content = _convert_tables(content)
-    for (search, replace) in PATTERNS:
-        content = re.sub(search, replace, content)
-    return content
+    return convert(uparser.parseString(title, content))
 
-def _convert_tables(content):
-    """
-    Convert simple wikitables to dokuwiki tables, in a fairly braindead way (not a proper parser)
+def convert_children(node):
+    result = ""
+    for child in node.children:
+        res = convert(child)
+        if type(res) is str:
+            res = unicode(res)
+        if type(res) is not unicode:
+            print("Got invalid response '%s' when processing '%s'" % (res,child))
+        result += res
+    return result
 
-    Doesn't support || or | single row syntax yet, will probably mangle multirow cells
-    """
-    table = None
-    row = None
-    output = []
-    for line in content.split("\n"):
-        if table is None: # not in a table
-            if line.startswith("{|"):
-                table = []
-                row = []
-            else:
-                output.append(line)
-        else: # in a table
-            if line.startswith("|-"): # new row
-                if row is not None:
-                    table.append(row)
-                row = []
-            elif line.startswith("|}"): # end of table
-                table.append(row)
-                # output table in dokuwiki format
-                for row in table:
-                    output.append("|%s|" % "|".join(cell.ljust(16) for cell in row))
-                row = None
-                table = None
-            elif line.startswith("|") or line.startswith("!"): # cell or header
-                row.append(line[1:])
-            else: # don't know what this is(!), probably a multirow cell(?) so add to previous cell
-                row[-1] += line
-    return "\n".join(output)
+@visitor.when(Article)
+def convert(node):
+    return convert_children(node)
 
-RE_MW_IMG_SCALE =  re.compile(r'\|x?(\d+(x\d+)?)px(\||$)')
-RE_MW_IMG_CENTER = re.compile(r'\|center(\||$)')
-RE_MW_IMG_LEFT =   re.compile(r'\|left(\||$)')
-RE_MW_IMG_RIGHT =  re.compile(r'\|right(\||$)')
+@visitor.when(Paragraph)
+def convert(node):
+    return convert_children(node) + "\n"
 
-def convert_image_embed(match):
-    """
-    Convert an embedded image from a mediawiki embed to a dokuwiki embed (matched by patterns below)
+@visitor.when(Text)
+def convert(text):
+    return text.caption
 
-    Also matches some simpl embedding formats
-    """
-    imagename = dokuwiki.clean_id(match.group(1), keep_slashes=True)
-    options = match.group(2)
+@visitor.when(Section)
+def convert(section):
+    result = ""
+    if section.tagname == "p":
+        pass
+    elif section.tagname == "@section":
+        level = section.level
+        heading = convert(section.children.pop(0))
+        heading_boundary = "="*(6-level)
+        result = "\n%s %s %s\n" % (heading_boundary, heading, heading_boundary)
+    else:
+        print("Unknown tagname %s" % section.tagname)
 
-    if options is None:
-        options = ""
+    return result + convert_children(section)
 
-    # look for size options
-    width_suffix = ""
-    # dokuwiki doesn't support by-height scaling, this gets translated as a by-width scale
-    match = re.search(RE_MW_IMG_SCALE, options)
-    if match is not None:
-        width_suffix = "?%s" % (match.group(1))
+@visitor.when(Style)
+def convert(style):
+    formatter = {
+        ";" :  ("**", r"**\\"),     # definition (essentially boldface)
+        "''" : ("//", "//"),        # italics
+        "'''" :("**", "**"),        # boldface
+        ":"   : ("", ""),           # other end of a definition???
+        "sub" : ("<sub>","</sub>"),
+        "sup" : ("<sup>","</sup>"),
+        "big" : ("**", "**"),        # <big> not in dokuwiki so use bold
+        }.get(style.caption, None)
+    if formatter is None:
+        print("WARNING: Ignoring unknown formatter %s" % style.caption)
+        formatter = ("","")
+    return formatter[0] + convert_children(style) + formatter[1]
 
-    # look for alignment options
-    align_pre = ""
-    align_post = ""
-    if re.search(RE_MW_IMG_CENTER, options):
-        align_pre = " "
-        align_post = " "
-    elif re.search(RE_MW_IMG_LEFT, options):
-        align_post = " "
-    elif re.search(RE_MW_IMG_RIGHT, options):
-        align_pre = " "
+@visitor.when(NamedURL)
+def convert(url):
+    text = convert_children(url).strip(" ")
+    url = url.caption
+    return "[[%s|%s]]" % (url, text)
 
-    return "{{%sfile:%s%s%s}}" % (align_pre, imagename, width_suffix, align_post)
+@visitor.when(URL)
+def convert(url):
+    return url.caption
 
-def convert_heading(match):
-    level = min(len(match.group(1)), 5)
-    syntax = "="*(6-level) # dokuwiki is opposite, more =s for higher level headings
-    title = match.group(2)
-    return "%s %s %s" % (syntax, title, syntax)
+@visitor.when(ImageLink)
+def convert(link):
+    suffix = ""
+    if link.width is not None:
+        if link.height is None:
+            suffix = "?%s" % link.width
+        else:
+            suffix = "?%sx%s" % (link.width, link.height)
+    else:
+        try:
+            if link.in_gallery: # see below for Tag->gallery handling
+                suffix = "?160" # gallery images should be thumbnailed
+        except AttributeError:
+            pass # not in a gallery
+    prealign = " " if link.align in [ "center", "right" ] else ""
+    postalign = " " if link.align in [ "center", "left" ] else ""
+    target = re.sub(r"^Image:", "File:", link.target)
+    target = dokuwiki.make_dokuwiki_pagename(target)
+    return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
+
+@visitor.when(ArticleLink)
+def convert(link):
+    text = convert_children(link).strip(" ")
+    pagename = dokuwiki.make_dokuwiki_pagename(link.target)
+    if len(text):
+        return "[[%s]]" % pagename
+    else:
+        return "[[%s|%s]]" % (pagename, text)
+
+@visitor.when(CategoryLink)
+def convert(link):
+    # Category functionality can be implemented with plugin:tag, but not used here
+    return ""
+
+@visitor.when(NamespaceLink)
+def convert(link):
+    if link.target.startswith("File:"):
+        filename = dokuwiki.make_dokuwiki_pagename(link.target)
+        caption = convert_children(link).strip()
+        if len(caption) > 0:
+            return "{{%s%s}}" % (filename, caption)
+        else:
+            return "{{%s}}" % filename
+
+    print("WARNING: Ignoring namespace link to " + link.target)
+    return convert_children(link)
 
 
-def convert_url(match):
-    print(match.groups())
-    url = match.group(1)
-    title = match.group(3)
-    if not url.startswith("http"):
-        # internal wiki URLs get reformatted for new page names
-        url = dokuwiki.clean_id(url, keep_slashes=True).replace('/',':')
-    return "[[%s|%s]]" % (url, title)
+@visitor.when(ItemList)
+def convert(itemlist):
+    def apply_itemlist_properties(node):
+        # ItemLists are used for depth/style tracking - applies those attributes to all its children
+        for child in node.children:
+            try:
+                child.list_style = "*" if itemlist.tagname == "ul" else "-"
+                child.list_depth += 1
+            except AttributeError:
+                child.list_depth = 1
+            apply_itemlist_properties(child)
+    apply_itemlist_properties(itemlist)
+    return convert_children(itemlist)
 
+@visitor.when(Item)
+def convert(item):
+    return "  "*item.list_depth + item.list_style + convert_children(item)
 
-"""
-    Most of the regex patterns and replacements used here were originally written as Perl oneliners
-    by Johannes Buchner <buchner.johannes [at] gmx.at>
+@visitor.when(Table)
+def convert(table):
+    # we ignore the actual Table tags, instead convert each Row & Cell individually
+    return convert_children(table)
 
-    Tuples are ( <regex to search for>, <replacement> ) as arguments to re.sub()
-"""
-PATTERNS = [
-    # Headings
-    (r'^([=]+) *([^=]+) *[=]+ *$', convert_heading),
-    (r'</?h1>', '======'),
-    (r'</?h2>', '====='),
-    (r'</?h3>', '===='),
-    (r'</?h4>', '==='),
-    (r'</?h5>', '=='),
-    (r'</?h6>', '='),
+@visitor.when(Cell)
+def convert(cell):
+    marker = "^" if cell.tagname == "th" else "|"
+    result = "%s %s" % (marker, convert_children(cell).replace('\n','').strip())
+    return result
 
-    # preformatted
-    (r"^ (.+)$", r'  \1'),
+@visitor.when(Row)
+def convert(row):
+    return convert_children(row) + " |\n"
 
-    # lists
-    (r'^[\*#]{4}\*',  '      * '),
-    (r'^[\*#]{3}\*',  '     * '),
-    (r'^[\*#]{2}\*',  '    * '),
-    (r'^[\*#]{1}\*',  '   * '),
-    (r'^\*',          '  * '),
-    (r'^[\*#]{4}#',   '      - '),
-    (r'^[\*\#]{3}\#', '     - '),
-    (r'^[\*\#]{2}\#', '    - '),
-    (r'^[\*\#]{1}\#', '   - '),
-    (r'^\#',          '  - '),
+@visitor.when(PreFormatted)
+def convert(pre):
+    return "  " + convert_children(pre).replace("\n","\n  ").strip(" ")
 
-    #[link] => [[link]]
-    (r'([^\[])\[([^\[])', '\\1[[\\2'),
-    (r'^\[([^\[])', '[[\\1'),
-    (r'([^\]])\]([^\]])', '\\1]]\\2'),
-    (r'([^\]])\]$', '\\1]]'),
+@visitor.when(TagNode)
+def convert(tag):
+    if tag._text is not None:
+        if tag._text.replace(" ","").replace("/","") == "<br>":
+            return "\n" # this is a oneoff hack for one wiki page covered in <br/>
+        return tag._text # may not work for non-selfclosing tags
+    elif tag.tagname == "gallery":
+        # with a lot of cleverness we could use the gallery plugin for this,
+        # but this should do. We flag each child image as in the gallery, then
+        # deal with the ImageLinks above
+        for child in tag.children:
+            child.in_gallery = True
 
-    #[[File:image]] => {{file:image}}
-    (r'\[\[File:(.+?)(\|(.*))?\]\]', convert_image_embed),
+    return convert_children(tag)
 
-    #[Category:blah] => Nothing (could convert to the 'tag' plugin format if necessary)
-    (r'\[\[Category:(.+?)\]\]', ''),
-
-    #[[url text]] => [[url|text]]
-    (r'\[\[([^| \]]*)( ([^|\]]*))\]\]', convert_url),
-
-    # bold, italic
-    (r"'''", "**"),
-    (r"''", r"\\"),
-
-    # talks
-    (r"^[ ]*:", ">"),
-    (r">:", ">>"),
-    (r">>:", ">>>"),
-    (r">>>:", ">>>>"),
-    (r">>>>:", ">>>>>"),
-    (r">>>>>:", ">>>>>>"),
-    (r">>>>>>:", ">>>>>>>"),
-
-    (r"<pre>", "<code>"),
-    (r"</pre>", "</code>"),
-    ]
-# precompile the regexes we're searching for
-PATTERNS = [ (re.compile(search, re.MULTILINE), replace) for (search, replace) in PATTERNS]
+# catchall for Node, which is the parent class of everything above
+@visitor.when(Node)
+def convert(node):
+    if node.__class__ != Node:
+        print("WARNING: Unsupported node type: %s" % (node.__class__))
+    return convert_children(node)
 

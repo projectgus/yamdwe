@@ -1,15 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 
 Debian/Ubuntu install
-sudo apt-get install python3 python3-pip
-sudo pip3 install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
+sudo apt-get install python-pip
+
+(Probably actually want a virtualenv for these steps)
+
+pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
+pip install -i http://pypi.pediapress.com/simple/ mwlib
 
 """
-
+from __future__ import print_function, unicode_literals, absolute_import, division
 import argparse, sys
-
 from pprint import pprint
 import mediawiki, dokuwiki
 
@@ -21,12 +24,12 @@ def main():
 
     # Convert all pages and page revisions
     pages = importer.get_all_pages()
-    print("Found %d pages to export" % len(pages))
+    print("Found %d pages to export..." % len(pages))
     exporter.write_pages(pages)
 
     # Bring over images
     images = importer.get_all_images()
-    print("Found %d images to export" % len(images))
+    print("Found %d images to export..." % len(images))
     exporter.write_images(images)
 
     # fix permissions on data directory if possible
