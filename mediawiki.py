@@ -1,7 +1,13 @@
+"""
+Methods for importing mediawiki pages, images via the simplemediawki
+wrapper to the MediaWiki API.
+
+Copyright (C) 2014 Angus Gratton
+Licensed under New BSD License as described in the file LICENSE.
+"""
 from __future__ import print_function, unicode_literals, absolute_import, division
 import simplemediawiki
 from pprint import pprint
-
 
 class Importer(object):
     def __init__(self, api_url):
@@ -30,12 +36,19 @@ class Importer(object):
 
     def get_all_images(self):
         """
-        Slurp all images down from the mediawiki instance, latest revision only
+        Slurp all images down from the mediawiki instance, latest revision of each image, only.
 
         WARNING: Hits API hard, don't do this without knowledge/permission of wiki operator!!
         """
         query = {'list' : 'allimages'}
         return self._query(query, [ 'allimages' ])
+
+    def get_all_users(self):
+        """
+        Slurp down all usernames from the mediawiki instance.
+        """
+        query = {'list' : 'allusers'}
+        return self._query(query, [ 'allusers' ])
 
     def _query(self, args, path_to_result):
         """

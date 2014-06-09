@@ -1,3 +1,11 @@
+"""
+Methods for converting Mediawiki content to the Dokuwiki format.
+
+Uses mwlib to parse the Mediawiki markup.
+
+Copyright (C) 2014 Angus Gratton
+Licensed under New BSD License as described in the file LICENSE.
+"""
 from __future__ import print_function, unicode_literals, absolute_import, division
 import re, string, dokuwiki, visitor
 from mwlib.parser import *

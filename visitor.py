@@ -16,7 +16,7 @@ Simple example:
 @when(str)
 def myFunc(arg):
     print "My string has length %d" % (len(arg))
-    
+
 @when(int)
 def myFunc(arg):
     print "My integer is %d" % arg
@@ -74,7 +74,7 @@ I am a superclass call
 1
 
 
-Copyright 2011 Angus Gratton. 
+Copyright 2011 Angus Gratton. Licensed under New BSD License as described in the file LICENSE.
 """
 
 import inspect, types

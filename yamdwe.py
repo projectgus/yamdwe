@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-
 """
+Export all revisions of all pages, plus all images/meda, from a
+Mediawiki install to a Dokuwiki install. Mediawiki install can be
+remote (uses API, but check terms of service.) Dokuwiki install is
+local.
 
-Debian/Ubuntu install
-sudo apt-get install python-pip
+Requirements:
+Python 2.7, mwlib, simplemediawiki, requests
 
-(Probably actually want a virtualenv for these steps)
-
-pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
-pip install -i http://pypi.pediapress.com/simple/ mwlib
-
+Copyright (C) 2014 Angus Gratton
+Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 import argparse, sys
@@ -34,13 +34,13 @@ def main():
 
     # fix permissions on data directory if possible
     exporter.fixup_permissions()
-
+    print("Done.")
 
 # Parser for command line arguments
-arguments = argparse.ArgumentParser(description='Convert a Mediawiki installation to a brand new Dokuwiki installation.')
+arguments = argparse.ArgumentParser(description='Convert a Mediawiki installation to a Dokuwiki installation.')
 #arguments.add_argument('-y', '--yes',help="Don't pause for confirmation before exporting", action="store_true")
 arguments.add_argument('mediawiki', metavar='MEDIAWIKI_API_URL', help="URL of mediawiki's api.php file (something like http://mysite/wiki/api.php)")
-arguments.add_argument('dokuwiki', metavar='DOKUWIKI_ROOT', help="Root path to an empty (erasable) dokuwiki installation")
+arguments.add_argument('dokuwiki', metavar='DOKUWIKI_ROOT', help="Root path to an existing dokuwiki installation to add the Mediawiki pages to (can be a brand new install.)")
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,11 @@
+"""
+Methods for exporting mediawiki pages & images to a dokuwiki data/ directory.
+
+Tested with Dokuwiki 2014-05-05 "Ponder Stibbons".
+
+Copyright (C) 2014 Angus Gratton
+Licensed under New BSD License as described in the file LICENSE.
+"""
 from __future__ import print_function, unicode_literals, absolute_import, division
 import os, os.path, gzip, shutil, re, requests, time
 import wikicontent
@@ -101,7 +109,7 @@ class Exporter(object):
             # append entry to page's 'changes' metadata index
             with open(changespath, "w" if is_first else "a") as f:
                 changes_title = full_title.replace("/", ":")
-                fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, revision["user"])
+                fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, clean_user(revision["user"]))
                 print("\t".join(fields), file=f)
 
 
@@ -160,6 +168,13 @@ def clean_id(name):
     while "__" in result:
         result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
     return result
+
+def clean_user(name):
+    """
+    Return a 'clean' dokuwiki-authplain-compliant username.
+    Based on the cleanUser() PHP function in lib/plugins/authplain/auth.php
+    """
+    return clean_id(name).replace(":","_")
 
 def get_timestamp(node):
     """
