@@ -45,9 +45,10 @@ def main():
 
     for mw_username in mw_users.keys():
         if mw_username in dw_users:
-            print("%s already exists in users.auth. Setting email, realname..." % mw_username)
+            print("%s already exists in users.auth. Updating attributes..." % mw_username)
             dw_users[mw_username]["name"] = mw_users[mw_username]["name"]
             dw_users[mw_username]["email"] = mw_users[mw_username]["email"]
+            dw_users[mw_username]["pwhash"] = mw_users[mw_username]["pwhash"]
         else:
             print("Adding new user %s..." % mw_users[mw_username]["login"])
             dw_users[mw_username] = mw_users[mw_username]
@@ -66,7 +67,7 @@ def get_dokuwiki_users(userfile):
             if line.startswith("#") or line.strip() == "":
                 comments += line
             elif ":" in line:
-                login,pwhash,name,email,groups = line.strip().split(":")
+                login,pwhash,name,email,groups = re.split(r'(?<![^\\]\\)\:', line.strip(),5)
                 users[login] = {
                     "login" : login,
                     "pwhash" : pwhash,
@@ -91,15 +92,17 @@ def get_mediawiki_users(host, user, password, dbname, tableprefix):
     c = db.cursor()
     c.execute("SELECT user_name,user_real_name,user_email,user_password FROM %suser" % tableprefix)
     users = {}
-    for row in c.fetchall():
-        login = dokuwiki.clean_user(unicode(row[0], "utf-8"))
-        pwhash = unicode(row[3], "utf-8").replace(":","|")
 
+    def _escape(field):
+        return unicode(field, "utf-8").replace(":", r"\:")
+
+    for row in c.fetchall():
+        login = names.clean_user(unicode(row[0], "utf-8"))
         users[login] = {
             "login" : login,
-            "pwhash" : pwhash,
-            "name" : unicode(row[1], "utf-8"),
-            "email" : unicode(row[2], "utf-8"),
+            "pwhash" : _escape(row[3]),
+            "name" : _escape(row[1]),
+            "email" : _escape(row[2]),
             "groups" : "user",
             }
     return users

@@ -112,7 +112,7 @@ Any settings you're unsure about (like `--prefix` for table prefix)
 can be found in the LocalSettings.php file of your Mediawiki
 installation.
 
-yamdwe_users exports mediawiki password hashes to a dokuwiki "basicauth" text file, but at time of writing Dokuwiki can't actually use these and each user will need to reset their password. If [this pull request](https://github.com/splitbrain/dokuwiki/pull/755) is accepted then passwords will "just work" after export.
+yamdwe_users exports mediawiki password hashes to a dokuwiki "basicauth" text file. These imported passwords won't work with the current stable Dokuwiki version (2014-05-05 "Ponder Stibbons".) However they will work with the current development version, or if you patch with [this commit](https://github.com/splitbrain/dokuwiki/commit/42aeaf8323271f65bb906e11c6126d3a2d060a3f).
 
 Please check for
 [correct permissions](https://www.dokuwiki.org/install:permissions) on
