@@ -1,42 +1,43 @@
+
+
 # Yet Another Mediawiki to DokuWiki Exporter
 
 Yamdwe is made up of two Python programs to export an existing
-Mediawiki install to a Dokuwiki install. It also serves a cautionary
-tale about overzealous yak shaving.
+Mediawiki install to a Dokuwiki install.
 
 # Features
 
 * Exports and recreates full revision history of all pages, including author information for correct attribution.
 * Exports images and maintains modification dates (but not past revisions of an image.)
-* Can optionally export user accounts.
-* Parses MediaWiki syntax using the [mwlib library](http://mwlib.readthedocs.org/en/latest/index.html) (as used by Wikipedia), so can convert most pages quite cleanly.
+* Can optionally export user accounts to the default dokuiwiki "basicauth" format (see below.)
+* Parses MediaWiki syntax using the [mwlib library](http://mwlib.readthedocs.org/en/latest/index.html) (as used by Wikipedia), so can convert most pages very cleanly - minimal manual cleanup.
 * Syntax support includes: tables, image embeds, code blocks.
-* Uses Mediawiki API for pages and images, so local access to Mediawiki is not required to export it (NB: Yamdwe does hit the API quite hard, so please do not export other people's wikis for fun. Or, at minimum, please read their Terms of Service first.)
+* Uses the MediaWiki API to export pages and images, so a MediaWiki install can be exported remotely and without admin privileges (NB: Yamdwe does hit the API quite hard, so please do not export other people's wikis for fun. Or, at minimum, please read their Terms of Service first and comply by them.)
 
 # Tested with
 
-* Dokuwiki 2014-05-05 "Ponder Stibbons" (should work on any recent version.)
+* Dokuwiki 2014-05-05 "Ponder Stibbons" (should work on any recent version, see below for notes about user passwords.)
 * MediaWiki 1.19.1 (should work on 1.8 or newer.)
 * A smallish wiki.
 
 # Not-So-Features
 
-Is one of those projects you hammer out once for a given task (in this case migrating the Melbourne Hackerspace's small wiki installation) and then neglect. It'll hopefully work for you, and I've tried to write it in a sensible way so if you know some Python you can probably hack on it without cursing my name too much, but I probably won't be maintaining it. :(.
+This is one of those projects you hammer out once for a given task (in this case migrating the Melbourne Hackerspace's small wiki installation) and then invariably neglect. It'll hopefully work for you, and I've tried to write it in a sensible way so if you know some Python you can probably hack on it without cursing my name too much, but I probably won't be maintaining it. :(.
 
 If you are interested in maintaining this project on any kind of
 basis then please let me know and I will gladly hand it over.
 
-If you do find glaring bugs then please do still take the time to open
-an Issue here on github.
+If you do find glaring bugs then please do take the time to [open
+an Issue](https://github.com/projectgus/yamdwe/issues) here on github.
 
 # Requirements
 
-* Python 2.7 or newer
+* Python 2.7 or newer (Python 3 not supported by all dependencies at time of writing.)
 * [requests module](http://docs.python-requests.org/en/latest/)
 * [simplemediawiki module](http://pythonhosted.org/simplemediawiki/)
 * [mwlib module](http://mwlib.readthedocs.org/en/latest/index.html)
 
-## For exporting Users (only)
+## If exporting users is required
 
 * [Python MySQLDb](http://sourceforge.net/projects/mysql-python/)
 
@@ -44,16 +45,36 @@ an Issue here on github.
 
 ## Installing dependencies
 
+### 1. Basic dependencies
+
 For Debian/Ubuntu Linux:
+
     sudo apt-get install python python-mysqldb python-pip
 
-(I suggest installing the following Python dependencies inside a
+### 2. Virtualenv (optional)
+
+(I suggest installing the remaining Python dependencies inside a
 [virtualenv](https://virtualenv.pypa.io/en/latest/), as mwlib in
-particular has a lot of specific dependencies)
+particular has a lot of specific dependencies.)
+
+Virtualenv & virtualenvwrapper for Debian/Ubuntu:
+
+    sudo apt-get install python-virtualenv virtualenvwrapper
+    source /etc/bash_completion
+    mkvirtualenv yamdwe
+
+(Next time you log in the [virtualenvwrapper aliases](http://virtualenvwrapper.readthedocs.org/en/latest/command_ref.html) will be
+automatically added to your environment, and you can use `workon yamdwe` to
+enable the yamdwe virtualenv.)
+
+### 3. Pip dependencies
+
+    sudo apt-get install python-dev libxml2-dev libxslt-dev
 
     pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
     pip install -i http://pypi.pediapress.com/simple/ mwlib
     pip install requests
+
 
 ## Set up Dokuwiki
 
