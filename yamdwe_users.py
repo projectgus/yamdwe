@@ -17,7 +17,7 @@ Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import argparse, sys, os.path, collections, getpass, MySQLdb
+import argparse, sys, os.path, collections, getpass, re, codecs, MySQLdb
 import names
 from pprint import pprint
 
@@ -62,7 +62,7 @@ def get_dokuwiki_users(userfile):
     """ Parse the dokuwiki users.auth file and return block of comment text, dict of user info structures """
     users = collections.OrderedDict()
     comments = ""
-    with open(userfile, "r") as f:
+    with codecs.open(userfile, "r", "utf-8") as f:
         for line in f:
             if line.startswith("#") or line.strip() == "":
                 comments += line
@@ -79,11 +79,11 @@ def get_dokuwiki_users(userfile):
 
 def write_dokuwiki_users(userfile, comments, users):
     """ Write out a new users.auth file with the given users, and comments. """
-    with open(userfile, "w") as f:
-        f.write(comments.encode("utf-8"))
+    with codecs.open(userfile, "w", "utf-8") as f:
+        f.write(unicode(comments))
         for user in users.values():
             line = u"%(login)s:%(pwhash)s:%(name)s:%(email)s:%(groups)s\n" % user
-            f.write(line.encode("utf-8"))
+            f.write(line)
 
 def get_mediawiki_users(host, user, password, dbname, tableprefix):
     print(host,user,password,dbname,tableprefix)
