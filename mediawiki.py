@@ -19,7 +19,9 @@ class Importer(object):
         WARNING: Hits API hard, don't do this without knowledge/permission of wiki operator!!
         """
         query = {'list' : 'allpages'}
+        print("Getting list of pages...")
         pages = self._query(query, [ 'allpages' ])
+        print("Query page revisions...")
         for page in pages:
             page["revisions"] = self._get_revisions(page)
         return pages
