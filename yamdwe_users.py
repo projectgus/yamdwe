@@ -18,7 +18,7 @@ Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 import argparse, sys, os.path, collections, getpass, MySQLdb
-import dokuwiki
+import names
 from pprint import pprint
 
 def main():

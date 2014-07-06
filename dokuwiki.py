@@ -10,6 +10,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os, os.path, gzip, shutil, re, requests, time
 import wikicontent
 import simplemediawiki
+import names
 
 class Exporter(object):
     def __init__(self, rootpath):
@@ -109,7 +110,7 @@ class Exporter(object):
             # append entry to page's 'changes' metadata index
             with open(changespath, "w" if is_first else "a") as f:
                 changes_title = full_title.replace("/", ":")
-                fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, clean_user(revision["user"]))
+                fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, names.clean_user(revision["user"]))
                 print("\t".join(fields), file=f)
 
 
@@ -154,31 +155,9 @@ class Exporter(object):
             print("WARNING: Failed to set permissions under the data directory (not owned by process?) May need to be manually fixed.")
 
 
-
-
-def clean_id(name):
-    """
-    Return a 'clean' dokuwiki-compliant name. Based on the cleanID() PHP function in inc/pageutils.php
-
-    Ignores both slashes and colons as valid namespace choices (to convert slashes to colons,
-    call make_dokuwiki_pagename)
-    """
-    main,ext = os.path.splitext(name)
-    result = (re.sub(r'[^\w/:]+', '_', main) + ext).lower()
-    while "__" in result:
-        result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
-    return result
-
-def clean_user(name):
-    """
-    Return a 'clean' dokuwiki-authplain-compliant username.
-    Based on the cleanUser() PHP function in lib/plugins/authplain/auth.php
-    """
-    return clean_id(name).replace(":","_")
-
 def get_timestamp(node):
     """
-    Return a dokuwiki-Comaptible Unix int timestamp for a mediawiki API page/image/revision
+    Return a dokuwiki-Compatible Unix int timestamp for a mediawiki API page/image/revision
     """
     dt = simplemediawiki.MediaWiki.parse_date(node['timestamp'])
     return int(time.mktime(dt.timetuple()))
@@ -194,7 +173,7 @@ def make_dokuwiki_pagename(mediawiki_name):
     Any namespacing that is in the form of a / is replaced with a :
     """
     result = mediawiki_name.replace(" ","_")
-    return clean_id(camel_to_underscore(result)).replace("/",":")
+    return names.clean_id(camel_to_underscore(result)).replace("/",":")
 
 def camel_to_underscore(camelcase):
     """
