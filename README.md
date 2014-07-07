@@ -114,7 +114,9 @@ installation.
 
 yamdwe_users exports mediawiki password hashes to a dokuwiki "basicauth" text file. These imported passwords won't work with the current stable Dokuwiki version (2014-05-05 "Ponder Stibbons".) However they will work with the current development version, or if you patch with [this commit](https://github.com/splitbrain/dokuwiki/commit/42aeaf8323271f65bb906e11c6126d3a2d060a3f).
 
-Please check for
-[correct permissions](https://www.dokuwiki.org/install:permissions) on
-the dokuwiki `data/conf/users.auth.php` file after the export is
-finished.
+## Post Import Steps
+
+* After the export please check for [correct permissions](https://www.dokuwiki.org/install:permissions) on
+  the dokuwiki `data/conf/users.auth.php` file and other data/conf files.
+
+* The search index needs to be manually rebuilt with the contents of the new pages. The [searchindex plugin](https://www.dokuwiki.org/plugin:searchindex) can do this.
