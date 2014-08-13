@@ -60,16 +60,23 @@ class Importer(object):
         query = { 'action' : 'query' }
         query.update(args)
         result = []
+        continuations = 0
         while True:
             response = self.mw.call(query)
+
             # fish around in the response for our actual data (location depends on query)
-            inner = response['query']
-            for key in path_to_result:
-                inner = inner[key]
-            result += inner
             try:
-                # if there's a continuation, its arguments are hiding here
+                inner = response['query']
+                for key in path_to_result:
+                    inner = inner[key]
+            except KeyError:
+                raise RuntimeError("Mediawiki query '%s' returned unexpected response '%s' after %d continuations" % (args, response, continuations))
+            result += inner
+
+            # if there's a continuation, find the new arguments and follow them
+            try:
                 query.update(response['query-continue'][path_to_result[-1]])
+                continuations += 1
             except KeyError:
                 return result
 
