@@ -16,8 +16,10 @@ import argparse, sys
 from pprint import pprint
 import mediawiki, dokuwiki
 
-
 def main():
+    # the wikicontent code (that uses visitor module) tends to recurse quite deeply for complex pages
+    sys.setrecursionlimit(20000)
+
     args = arguments.parse_args()
     importer = mediawiki.Importer(args.mediawiki)
     exporter = dokuwiki.Exporter(args.dokuwiki)
