@@ -17,7 +17,7 @@ Mediawiki install to a Dokuwiki install.
 # Tested with
 
 * Dokuwiki 2014-05-05 "Ponder Stibbons" (should work on any recent version, see below for notes about user passwords.)
-* MediaWiki 1.19.1 (should work on 1.8 or newer.)
+* MediaWiki 1.19.1 (should work on 1.13 or newer.)
 * A smallish wiki.
 
 # Not-So-Features
