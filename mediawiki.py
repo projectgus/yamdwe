@@ -7,11 +7,21 @@ Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 import simplemediawiki
+import re
 from pprint import pprint
 
 class Importer(object):
     def __init__(self, api_url):
         self.mw = simplemediawiki.MediaWiki(api_url)
+        # version check
+        try:
+            generator = "".join(self._query({'meta' : 'siteinfo'}, ['general', 'generator']))
+            version = [ int(x) for x in re.search(r'[0-9.]+', generator).group(0).split(".") ] # list of [ 1, 19, 1 ] or similar
+            if version[0] == 1 and version[1] < 13:
+                raise RuntimeError("Mediawiki version is too old. Yamdwe requires 1.13 or newer. This install is %s" % generator)
+            print("%s meets version requirements." % generator)
+        except IndexError:
+            raise RuntimeError("Failed to read Mediawiki siteinfo/generator. Is version older than 1.8? Yamdwe requires 1.13 or greater.")
 
     def get_all_pages(self):
         """
