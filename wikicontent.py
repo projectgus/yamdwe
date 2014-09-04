@@ -16,12 +16,15 @@ def convert_pagecontent(title, content):
     Convert a string in Mediawiki content format to a string in
     Dokuwiki content format.
     """
-    return convert(uparser.parseString(title, content))
+    root = uparser.parseString(title, content) # create parse tree
+    return convert(root, False)
 
 def convert_children(node):
+    """Walk the children of this parse node and call convert() on each.
+    """
     result = ""
     for child in node.children:
-        res = convert(child)
+        res = convert(child, result.endswith("\n"))
         if type(res) is str:
             res = unicode(res)
         if type(res) is not unicode:
@@ -30,25 +33,25 @@ def convert_children(node):
     return result
 
 @visitor.when(Article)
-def convert(node):
+def convert(node, trailing_newline):
     return convert_children(node)
 
 @visitor.when(Paragraph)
-def convert(node):
+def convert(node, trailing_newline):
     return convert_children(node) + "\n"
 
 @visitor.when(Text)
-def convert(text):
+def convert(text, trailing_newline):
     return text.caption
 
 @visitor.when(Section)
-def convert(section):
+def convert(section, trailing_newline):
     result = ""
     if section.tagname == "p":
         pass
     elif section.tagname == "@section":
         level = section.level
-        heading = convert(section.children.pop(0))
+        heading = convert(section.children.pop(0), trailing_newline)
         heading_boundary = "="*(6-level)
         result = "\n%s %s %s\n" % (heading_boundary, heading, heading_boundary)
     else:
@@ -57,7 +60,7 @@ def convert(section):
     return result + convert_children(section)
 
 @visitor.when(Style)
-def convert(style):
+def convert(style, trailing_newline):
     formatter = {
         ";" :  ("**", r"**\\"),     # definition (essentially boldface)
         "''" : ("//", "//"),        # italics
@@ -73,17 +76,17 @@ def convert(style):
     return formatter[0] + convert_children(style) + formatter[1]
 
 @visitor.when(NamedURL)
-def convert(url):
+def convert(url, trailing_newline):
     text = convert_children(url).strip(" ")
     url = url.caption
     return "[[%s|%s]]" % (url, text)
 
 @visitor.when(URL)
-def convert(url):
+def convert(url, trailing_newline):
     return url.caption
 
 @visitor.when(ImageLink)
-def convert(link):
+def convert(link, trailing_newline):
     suffix = ""
     if link.width is not None:
         if link.height is None:
@@ -103,7 +106,7 @@ def convert(link):
     return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
 
 @visitor.when(ArticleLink)
-def convert(link):
+def convert(link, trailing_newline):
     text = convert_children(link).strip(" ")
     pagename = dokuwiki.make_dokuwiki_pagename(link.target)
     if len(text):
@@ -112,12 +115,12 @@ def convert(link):
         return "[[%s|%s]]" % (pagename, text)
 
 @visitor.when(CategoryLink)
-def convert(link):
+def convert(link, trailing_newline):
     # Category functionality can be implemented with plugin:tag, but not used here
     return ""
 
 @visitor.when(NamespaceLink)
-def convert(link):
+def convert(link, trailing_newline):
     if link.target.startswith("File:"):
         filename = dokuwiki.make_dokuwiki_pagename(link.target)
         caption = convert_children(link).strip()
@@ -131,7 +134,7 @@ def convert(link):
 
 
 @visitor.when(ItemList)
-def convert(itemlist):
+def convert(itemlist, trailing_newline):
     def apply_itemlist_properties(node):
         # ItemLists are used for depth/style tracking - applies those attributes to all its children
         for child in node.children:
@@ -145,30 +148,34 @@ def convert(itemlist):
     return convert_children(itemlist)
 
 @visitor.when(Item)
-def convert(item):
-    return "  "*item.list_depth + item.list_style + convert_children(item)
+def convert(item, trailing_newline):
+    item_content = convert_children(item)
+    return "  "*item.list_depth + item.list_style + item_content
 
 @visitor.when(Table)
-def convert(table):
+def convert(table, trailing_newline):
     # we ignore the actual Table tags, instead convert each Row & Cell individually
     return convert_children(table)
 
 @visitor.when(Cell)
-def convert(cell):
+def convert(cell, trailing_newline):
     marker = "^" if cell.tagname == "th" else "|"
     result = "%s %s" % (marker, convert_children(cell).replace('\n','').strip())
     return result
 
 @visitor.when(Row)
-def convert(row):
+def convert(row, trailing_newline):
     return convert_children(row) + " |\n"
 
 @visitor.when(PreFormatted)
-def convert(pre):
-    return "  " + convert_children(pre).replace("\n","\n  ").strip(" ")
+def convert(pre, trailing_newline):
+    if trailing_newline: # in its own paragraph, use a two space indent
+        return "  " + convert_children(pre).replace("\n","\n  ").strip(" ")
+    else: # inline in a list or a paragraph body, use <code> tags
+        return "<code>" + convert_children(pre) + "</code>"
 
 @visitor.when(TagNode)
-def convert(tag):
+def convert(tag, trailing_newline):
     if tag._text is not None:
         if tag._text.replace(" ","").replace("/","") == "<br>":
             return "\n" # this is a oneoff hack for one wiki page covered in <br/>
@@ -184,7 +191,7 @@ def convert(tag):
 
 # catchall for Node, which is the parent class of everything above
 @visitor.when(Node)
-def convert(node):
+def convert(node, trailing_newline):
     if node.__class__ != Node:
         print("WARNING: Unsupported node type: %s" % (node.__class__))
     return convert_children(node)
