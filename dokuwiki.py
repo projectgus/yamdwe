@@ -7,7 +7,7 @@ Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import os, os.path, gzip, shutil, re, requests, time
+import os, os.path, gzip, shutil, re, requests, time, codecs
 import wikicontent
 import simplemediawiki
 import names
@@ -65,9 +65,9 @@ class Exporter(object):
             os.utime(imagepath, (timestamp,timestamp))
             # write a .changes file out to the media_meta/file directory
             changepath = os.path.join(filemeta, "%s.changes" % name)
-            with open(changepath, "w") as f:
-                fields = (str(timestamp), "::1", "C", "file:%s"%name, "", "created")
-                f.write("\t".join(fields) + "\r\n")
+            with codecs.open(changepath, "w", "utf-8") as f:
+                fields = (str(timestamp), "::1", "C", u"file:%s"%name, "", "created")
+                f.write(u"\t".join(fields) + "\r\n")
         # aggregate all the new changes to the media_meta/_media.changes file
         self._aggregate_changes(os.path.join(self.data, "media_meta"), "_media.changes")
 
@@ -98,8 +98,8 @@ class Exporter(object):
             # for current revision, create 'pages' .txt
             if is_current:
                 txtpath = os.path.join(pagedir, "%s.txt"%pagename)
-                with open(txtpath, "w") as f:
-                    f.write(content.encode("utf-8"))
+                with codecs.open(txtpath, "w", "utf-8") as f:
+                    f.write(content)
                 os.utime(txtpath, (timestamp,timestamp))
             # create gzipped attic revision
             atticname = "%s.%s.txt.gz" % (pagename, timestamp)
@@ -108,10 +108,10 @@ class Exporter(object):
                 f.write(content.encode("utf-8"))
             os.utime(atticpath, (timestamp,timestamp))
             # append entry to page's 'changes' metadata index
-            with open(changespath, "w" if is_first else "a") as f:
+            with codecs.open(changespath, "w" if is_first else "a", "utf-8") as f:
                 changes_title = full_title.replace("/", ":")
                 fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, names.clean_user(revision["user"]))
-                print("\t".join(fields), file=f)
+                print(u"\t".join(fields), file=f)
 
 
     def _aggregate_changes(self, metadir, aggregate):
@@ -126,10 +126,10 @@ class Exporter(object):
             for changesfile in files:
                 if changesfile == aggregate or not changesfile.endswith(".changes"):
                     continue
-                with open(os.path.join(root,changesfile), "r") as f:
+                with codecs.open(os.path.join(root,changesfile), "r", "utf-8") as f:
                     lines += f.readlines()
         lines = sorted(lines, key=lambda r: int(r.split("\t")[0]))
-        with open(os.path.join(metadir, aggregate), "w") as f:
+        with codecs.open(os.path.join(metadir, aggregate), "w", "utf-8") as f:
             f.writelines(lines)
 
     def fixup_permissions(self):
