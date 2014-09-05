@@ -154,6 +154,21 @@ class Exporter(object):
         except OSError:
             print("WARNING: Failed to set permissions under the data directory (not owned by process?) May need to be manually fixed.")
 
+    def invalidate_cache(self):
+        """ Invalidate cached pages by updating modification date of a config file
+
+        If this fails due to insufficient privileges then it just prints a warning and continues on.
+        """
+        confpath = os.path.join(self.root, "conf", "local.php")
+        try:
+            os.utime('myfile', None)
+        except OSError:
+            print(CACHE_WARNING_MSG % confpath)
+
+CACHE_WARNING_MSG = """WARNING: Failed to invalidate page cache by updating config file timestamp.
+If pre-existing pages exist in Dokuwiki, run the following command (with sufficient privileges):
+  touch "%s"
+"""
 
 def get_timestamp(node):
     """

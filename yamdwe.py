@@ -40,6 +40,10 @@ def main():
 
     # fix permissions on data directory if possible
     exporter.fixup_permissions()
+
+    # touch conf file to invalidate cached pages
+    exporter.invalidate_cache()
+
     print("Done.")
 
 # Parser for command line arguments
