@@ -49,19 +49,23 @@ an Issue](https://github.com/projectgus/yamdwe/issues) here on github.
 
 For Debian/Ubuntu Linux:
 
-    sudo apt-get install python python-mysqldb python-pip
+    sudo apt-get install python python-mysqldb python-pip python-lxml python-requests python-dev
 
 ### 2. Virtualenv (optional)
 
-(I suggest installing the remaining Python dependencies inside a
+I suggest installing the remaining Python dependencies inside a
 [virtualenv](https://virtualenv.pypa.io/en/latest/), as mwlib in
-particular has a lot of specific dependencies.)
+particular has a lot of specific dependencies.
+
+Some of the mwlib dependencies may be available as system Python
+packages, but they may have older/incompatible versions. Sandboxing
+these packages into a "virtualenv" avoids these version conflicts.
 
 Virtualenv & virtualenvwrapper for Debian/Ubuntu:
 
     sudo apt-get install python-virtualenv virtualenvwrapper
     source /etc/bash_completion
-    mkvirtualenv yamdwe
+    mkvirtualenv --system-site-packages yamdwe
 
 (Next time you log in the [virtualenvwrapper aliases](http://virtualenvwrapper.readthedocs.org/en/latest/command_ref.html) will be
 automatically added to your environment, and you can use `workon yamdwe` to
@@ -69,12 +73,11 @@ enable the yamdwe virtualenv.)
 
 ### 3. Pip dependencies
 
-    sudo apt-get install python-dev libxml2-dev libxslt-dev
+Make sure to run these inside the virtualenv (ie run `workon yamdwe`
+first), if you're using a virtulaenv.
 
     pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
     pip install -i http://pypi.pediapress.com/simple/ mwlib
-    pip install requests
-
 
 ## Set up Dokuwiki
 
