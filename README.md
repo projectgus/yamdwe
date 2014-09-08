@@ -18,17 +18,13 @@ Mediawiki install to a Dokuwiki install.
 
 * Dokuwiki 2014-05-05 "Ponder Stibbons" (should work on any recent version, see below for notes about user passwords.)
 * MediaWiki 1.19.1 (should work on 1.13 or newer.)
-* A smallish wiki.
+* A smallish wiki. Subsequent users have successfully run yamdwe on some substantially larger wikis.
 
-# Not-So-Features
+# Known Issues
 
-This is one of those projects you hammer out once for a given task (in this case migrating the Melbourne Hackerspace's small wiki installation) and then invariably neglect. It'll hopefully work for you, and I've tried to write it in a sensible way so if you know some Python you can probably hack on it without cursing my name too much, but I probably won't be maintaining it. :(.
+Please check the [Issues list on github](https://github.com/projectgus/yamdwe/issues) to see what's going on.
 
-If you are interested in maintaining this project on any kind of
-basis then please let me know and I will gladly hand it over.
-
-If you do find glaring bugs then please do take the time to [open
-an Issue](https://github.com/projectgus/yamdwe/issues) here on github.
+If you do find a bug or have trouble exporting a wiki then please open an issue there and I (or other yamdwe users) can try and help you out.
 
 # Requirements
 
