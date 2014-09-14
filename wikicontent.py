@@ -169,7 +169,11 @@ def convert(row, trailing_newline):
 
 @visitor.when(PreFormatted)
 def convert(pre, trailing_newline):
-    if trailing_newline: # in its own paragraph, use a two space indent
+    try:
+        in_list = item.list_depth > 0
+    except:
+        in_list = False
+    if trailing_newline and not in_list: # in its own paragraph, use a two space indent
         return "  " + convert_children(pre).replace("\n","\n  ").strip(" ")
     else: # inline in a list or a paragraph body, use <code> tags
         return "<code>" + convert_children(pre) + "</code>"
