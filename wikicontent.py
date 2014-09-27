@@ -170,7 +170,7 @@ def convert(itemlist, trailing_newline):
         # ItemLists are used for depth/style tracking - applies those attributes to all its children
         for child in node.children:
             try:
-                child.list_style = "*" if itemlist.tagname == "ul" else "-"
+                child.list_style = "* " if itemlist.tagname == "ul" else "- "
                 child.list_depth += 1
             except AttributeError:
                 child.list_depth = 1
