@@ -20,12 +20,6 @@ Mediawiki install to a Dokuwiki install.
 * MediaWiki 1.19.1 (should work on 1.13 or newer.)
 * A smallish wiki. Subsequent users have successfully run yamdwe on some substantially larger wikis.
 
-# Known Issues
-
-Please check the [Issues list on github](https://github.com/projectgus/yamdwe/issues) to see what's going on.
-
-If you do find a bug or have trouble exporting a wiki then please open an issue there and I (or other yamdwe users) can try and help you out.
-
 # Requirements
 
 * Python 2.7 or newer (Python 3 not supported by all dependencies at time of writing.)
@@ -119,3 +113,36 @@ yamdwe_users exports mediawiki password hashes to a dokuwiki "basicauth" text fi
   the dokuwiki `data/conf/users.auth.php` file and other data/conf files.
 
 * The search index needs to be manually rebuilt with the contents of the new pages. The [searchindex plugin](https://www.dokuwiki.org/plugin:searchindex) can do this.
+
+
+# Known Issues
+
+Please check the [Issues list on github](https://github.com/projectgus/yamdwe/issues) to see what's going on.
+
+If you do find a bug or have trouble exporting a wiki then please open an issue there and I (or other yamdwe users) can try and help you out.
+
+## Submitting Good Bug Reports
+
+If the bug is with some Mediawiki markup that doesn't provide the expected Dokuwiki markup, for a good bug report please include:
+
+* Excerpt of the Mediawiki markup causing the problem.
+* Desired Dokuwiki markup output.
+* Actual (problematic) Dokuwiki output from yamdwe.
+
+## Better Bug Reports?
+
+Want to put a huge smile on my face and get a massive karma dose by
+submitting an even better bug report? Are you comfortable using git &
+github?
+
+* Fork the yamdwe repository on github.
+* Add a test case directory under tests/ and place the problematic Mediawiki markup into a file `mediawiki.txt`, and the desired correct Dokuwiki output into `dokuwiki.txt`.
+* Run `wikicontent_tests.py` to verify that the incorrect output you expected is printed as part of the test failure.
+* Add a commmit which adds the new test case directory.
+* Submit a Pull Request for the test failure. Use the Pull Request description field to explain the problem.
+
+## Best Bug Reports?
+
+If you want to outclass even that bug report, your commit could also add a fix for the conversion problem in yamdwe, so all tests pass including the new one you added! *A+++ would accept Pull Request again!*
+
+Don't worry if you don't want to perform any extra steps though, any (polite) bug report is always welcome!
