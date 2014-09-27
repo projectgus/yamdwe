@@ -90,5 +90,28 @@ class Importer(object):
             except KeyError:
                 return result
 
+    def get_file_namespaces(self):
+        """
+        Return a list of all namespaces used for images or files
+        """
+        query = { 'action' : 'query', 'meta' : 'siteinfo', 'siprop' : 'namespaces|namespacealiases' }
+        result = self.mw.call(query)['query']
+        namespaces = result['namespaces'].values()
+        aliases = result.get('namespacealiases', {})
+        file_namespace = {'*' : 'Files', 'canonical' : 'File'}
+        # search for the File namespace
+        for namespace in namespaces:
+            if namespace['canonical'] == 'File':
+                file_namespace = namespace
+                break
+        # result starts with the file namespace value ('*' key) and canonical value
+        result = [ file_namespace['*'], file_namespace['canonical'] ]
+        # look for any aliases searching the file namespace id, add to the list
+        for alias in aliases:
+            if alias['id'] == file_namespace.get('id', None):
+                result.append(alias['*'])
+        return result
+
+
 
 

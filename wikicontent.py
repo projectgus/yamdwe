@@ -11,6 +11,31 @@ import re, string, dokuwiki, visitor
 from mwlib.parser import *
 from mwlib import uparser
 
+# Regex to match any known File: namespace (can be updated based on the mediawiki installation language)
+file_namespaces = re.compile("^(Image|File):", re.IGNORECASE)
+
+def set_file_namespaces(new_prefixes):
+    """
+    Allow the mediawiki parser to set the regex that matches any known image/file
+    prefixes (based on the siteinfo metadata).
+    """
+    global file_namespaces
+    file_namespaces = re.compile("^(%s):" % "|".join(new_prefixes), re.IGNORECASE)
+
+def is_file_namespace(target):
+    """
+    Is this target URL part of a known File or Image path?
+    """
+    return re.match(file_namespaces, target)
+
+def sanitise_file_namespace(target):
+    """
+    Convert any known File: or Image: (or alias) namespace link to be File:
+    ... mediawiki stores all these under a common namespace, so dokuwiki has no choice but to import
+    them all under "File"...
+    """
+    return re.sub(file_namespaces, "File:", target)
+
 def convert_pagecontent(title, content):
     """
     Convert a string in Mediawiki content format to a string in
@@ -101,7 +126,7 @@ def convert(link, trailing_newline):
             pass # not in a gallery
     prealign = " " if link.align in [ "center", "right" ] else ""
     postalign = " " if link.align in [ "center", "left" ] else ""
-    target = re.sub(r"^Image:", "File:", link.target)
+    target = sanitise_file_namespace(link.target)
     target = dokuwiki.make_dokuwiki_pagename(target)
     return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
 
@@ -121,8 +146,8 @@ def convert(link, trailing_newline):
 
 @visitor.when(NamespaceLink)
 def convert(link, trailing_newline):
-    if link.target.startswith("File:"):
-        filename = dokuwiki.make_dokuwiki_pagename(link.target)
+    if is_file_namespace(link.target): # is a link to a file or image
+        filename = dokuwiki.make_dokuwiki_pagename(sanitise_file_namespace(link.target))
         caption = convert_children(link).strip()
         if len(caption) > 0:
             return "{{%s%s}}" % (filename, caption)

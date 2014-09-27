@@ -14,7 +14,7 @@ Licensed under New BSD License as described in the file LICENSE.
 from __future__ import print_function, unicode_literals, absolute_import, division
 import argparse, sys, codecs
 from pprint import pprint
-import mediawiki, dokuwiki
+import mediawiki, dokuwiki, wikicontent
 
 def main():
     # the wikicontent code (that uses visitor module) tends to recurse quite deeply for complex pages
@@ -27,6 +27,9 @@ def main():
     args = arguments.parse_args()
     importer = mediawiki.Importer(args.mediawiki)
     exporter = dokuwiki.Exporter(args.dokuwiki)
+
+    # Set the wikicontent's definition of File: and Image: prefixes (varies by language settings)
+    wikicontent.set_file_namespaces(importer.get_file_namespaces())
 
     # Convert all pages and page revisions
     pages = importer.get_all_pages()
