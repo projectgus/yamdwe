@@ -29,7 +29,8 @@ def main():
     exporter = dokuwiki.Exporter(args.dokuwiki)
 
     # Set the wikicontent's definition of File: and Image: prefixes (varies by language settings)
-    wikicontent.set_file_namespaces(importer.get_file_namespaces())
+    canonical_file, aliases = importer.get_file_namespaces()
+    wikicontent.set_file_namespaces(canonical_file, aliases)
 
     # Convert all pages and page revisions
     pages = importer.get_all_pages()
@@ -39,7 +40,7 @@ def main():
     # Bring over images
     images = importer.get_all_images()
     print("Found %d images to export..." % len(images))
-    exporter.write_images(images)
+    exporter.write_images(images, canonical_file)
 
     # fix permissions on data directory if possible
     exporter.fixup_permissions()

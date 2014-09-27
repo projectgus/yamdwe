@@ -92,7 +92,8 @@ class Importer(object):
 
     def get_file_namespaces(self):
         """
-        Return a list of all namespaces used for images or files
+        Return a tuple. First entry is the name used by default for the file namespace (which dokuwiki will also use.)
+        Second entry is a list of all aliases used for that namespace.
         """
         query = { 'action' : 'query', 'meta' : 'siteinfo', 'siprop' : 'namespaces|namespacealiases' }
         result = self.mw.call(query)['query']
@@ -105,12 +106,12 @@ class Importer(object):
                 file_namespace = namespace
                 break
         # result starts with the file namespace value ('*' key) and canonical value
-        result = [ file_namespace['*'], file_namespace['canonical'] ]
+        aliases_result = [ file_namespace['canonical'] ]
         # look for any aliases searching the file namespace id, add to the list
         for alias in aliases:
             if alias['id'] == file_namespace.get('id', None):
-                result.append(alias['*'])
-        return result
+                aliases_result.append(alias['*'])
+        return file_namespace['*'], aliases_result
 
 
 

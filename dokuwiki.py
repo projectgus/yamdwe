@@ -40,16 +40,17 @@ class Exporter(object):
             self._convert_page(page)
         self._aggregate_changes(self.meta, "_dokuwiki.changes")
 
-    def write_images(self, images):
+    def write_images(self, images, file_namespace):
         """
         Given 'images' as a list of mediawiki image metadata API entries,
         download and write out dokuwiki images. Does not bring over revisions.
 
-        Images are all written to the file: namespace, to match mediawiki.
+        Images are all written to the file_namespace specified (file: by default), to match mediawiki.
         """
-        filedir = os.path.join(self.data, "media", "file")
+        file_namespace = file_namespace.lower()
+        filedir = os.path.join(self.data, "media", file_namespace)
         ensure_directory_exists(filedir)
-        filemeta = os.path.join(self.data, "media_meta", "file")
+        filemeta = os.path.join(self.data, "media_meta", file_namespace)
         ensure_directory_exists(filemeta)
         for image in images:
             # download the image from the Mediawiki server
@@ -66,7 +67,7 @@ class Exporter(object):
             # write a .changes file out to the media_meta/file directory
             changepath = os.path.join(filemeta, "%s.changes" % name)
             with codecs.open(changepath, "w", "utf-8") as f:
-                fields = (str(timestamp), "::1", "C", u"file:%s"%name, "", "created")
+                fields = (str(timestamp), "::1", "C", u"%s:%s"%(file_namespace,name), "", "created")
                 f.write(u"\t".join(fields) + "\r\n")
         # aggregate all the new changes to the media_meta/_media.changes file
         self._aggregate_changes(os.path.join(self.data, "media_meta"), "_media.changes")

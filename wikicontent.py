@@ -12,29 +12,35 @@ from mwlib.parser import *
 from mwlib import uparser
 
 # Regex to match any known File: namespace (can be updated based on the mediawiki installation language)
-file_namespaces = re.compile("^(Image|File):", re.IGNORECASE)
+mw_file_namespace_aliases = re.compile("^(Image|File):", re.IGNORECASE)
+dw_file_namespace = "File:"
 
-def set_file_namespaces(new_prefixes):
+def set_file_namespaces(canonical_alias, aliases):
     """
-    Allow the mediawiki parser to set the regex that matches any known image/file
-    prefixes (based on the siteinfo metadata).
+    Allow the mediawiki parser to match localised namespaces for files/images
+
+    Arguments:
+    canonical_alias is the single namespace that dokuwiki will use (default File:)
+    aliases is a list of alternative namespace names that will be converted to the canonical alias
     """
-    global file_namespaces
-    file_namespaces = re.compile("^(%s):" % "|".join(new_prefixes), re.IGNORECASE)
+    global mw_file_namespace_aliases
+    global dw_file_namespace
+    dw_file_namespace = canonical_alias + ":"
+    mw_file_namespace_aliases = re.compile("^(%s):" % "|".join(aliases), re.IGNORECASE)
 
 def is_file_namespace(target):
     """
     Is this target URL part of a known File or Image path?
     """
-    return re.match(file_namespaces, target)
+    return re.match(mw_file_namespace_aliases, target)
 
-def sanitise_file_namespace(target):
+def canonicalise_file_namespace(target):
     """
     Convert any known File: or Image: (or alias) namespace link to be File:
     ... mediawiki stores all these under a common namespace, so dokuwiki has no choice but to import
-    them all under "File"...
+    them all under a single canonical
     """
-    return re.sub(file_namespaces, "File:", target)
+    return re.sub(mw_file_namespace_aliases, dw_file_namespace, target)
 
 def convert_pagecontent(title, content):
     """
@@ -126,7 +132,7 @@ def convert(link, trailing_newline):
             pass # not in a gallery
     prealign = " " if link.align in [ "center", "right" ] else ""
     postalign = " " if link.align in [ "center", "left" ] else ""
-    target = sanitise_file_namespace(link.target)
+    target = canonicalise_file_namespace(link.target)
     target = dokuwiki.make_dokuwiki_pagename(target)
     return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
 
@@ -147,7 +153,7 @@ def convert(link, trailing_newline):
 @visitor.when(NamespaceLink)
 def convert(link, trailing_newline):
     if is_file_namespace(link.target): # is a link to a file or image
-        filename = dokuwiki.make_dokuwiki_pagename(sanitise_file_namespace(link.target))
+        filename = dokuwiki.make_dokuwiki_pagename(canonicalise_file_namespace(link.target))
         caption = convert_children(link).strip()
         if len(caption) > 0:
             return "{{%s%s}}" % (filename, caption)
