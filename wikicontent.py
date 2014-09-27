@@ -211,7 +211,9 @@ def convert(pre, trailing_newline):
 
 @visitor.when(TagNode)
 def convert(tag, trailing_newline):
-    if tag._text is not None:
+    if tag.tagname == "tt":
+        return "''" + convert_children(tag) + "''"
+    elif tag._text is not None:
         if tag._text.replace(" ","").replace("/","") == "<br>":
             return "\n" # this is a oneoff hack for one wiki page covered in <br/>
         return tag._text # may not work for non-selfclosing tags
