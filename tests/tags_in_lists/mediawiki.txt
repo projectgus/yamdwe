@@ -2,6 +2,7 @@
 <li>WinDjView with wine: highlighting is acceptable (one needs to select and then press Strg+H or click on menu); but no comment function</li>
 <li>sumatrapdf with wine: no highlighting facilities</li>
 <li>active-documentviewer: doesn't start, error <tt>file:///usr/share/kde4/apps/plasma/packages/org.kde.active.documentviewer/contents/ui/main.qml:21:1: module "org.kde.okular" is not installed import org.kde.okular 0.1 as Okular</tt></li>
+<li>some other list item</li>
 </ul>
 
 Some additional paragraph here.
