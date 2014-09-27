@@ -43,9 +43,15 @@ def run_test(testdir):
         print("CONVERSION ERROR")
         traceback.print_exc()
         print(DELIMITER)
+        if len(notes):
+            print("Test notes:")
+            print(notes)
         return False
 
     print("OUTPUT MISMATCH")
+    if len(notes):
+        print("Test notes:")
+        print(notes)
     print(DELIMITER)
     print("Input Mediawiki:")
     print(mw)
