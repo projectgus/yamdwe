@@ -17,7 +17,7 @@ Licensed under New BSD License as described in the file LICENSE.
 from __future__ import print_function, unicode_literals, absolute_import, division
 import sys, os, codecs, inspect, traceback
 from pprint import pprint
-import wikicontent
+import wikicontent, yamdwe
 
 DELIMITER="*"*40
 
@@ -94,6 +94,7 @@ def _readfile(dirpath, filename):
         return u""
 
 if __name__ == "__main__":
+    yamdwe.enable_unicode_output()
     if run_all_tests():
         sys.exit(0)
     else:

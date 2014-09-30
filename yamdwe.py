@@ -20,9 +20,7 @@ def main():
     # the wikicontent code (that uses visitor module) tends to recurse quite deeply for complex pages
     sys.setrecursionlimit(20000)
 
-    # we output a lot of Unicode strings, so set Unicode output to console/file if its not already set
-    if sys.stdout.encoding in [ None, "ascii" ]:
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    enable_unicode_output()
 
     args = arguments.parse_args()
     importer = mediawiki.Importer(args.mediawiki)
@@ -49,6 +47,11 @@ def main():
     exporter.invalidate_cache()
 
     print("Done.")
+
+def enable_unicode_output():
+    """ We output a lot of Unicode strings, so set Unicode output to console/file if its not already set """
+    if sys.stdout.encoding in [ None, "ascii" ]:
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 # Parser for command line arguments
 arguments = argparse.ArgumentParser(description='Convert a Mediawiki installation to a Dokuwiki installation.')
