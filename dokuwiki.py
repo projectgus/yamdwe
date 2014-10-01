@@ -96,6 +96,7 @@ class Exporter(object):
             is_first = (revision == revisions[0])
             content = wikicontent.convert_pagecontent(full_title, revision["*"])
             timestamp = get_timestamp(revision)
+            comment = revision.get("comment", "").replace("\t", " ").split("\n")[0]
             # path to the .changes metafile
             changespath = os.path.join(metadir, "%s.changes"%pagename)
             # for current revision, create 'pages' .txt
@@ -113,7 +114,7 @@ class Exporter(object):
             # append entry to page's 'changes' metadata index
             with codecs.open(changespath, "w" if is_first else "a", "utf-8") as f:
                 changes_title = full_title.replace("/", ":")
-                fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, names.clean_user(revision["user"]))
+                fields = (str(timestamp), "::1", "C" if is_first else "E", changes_title, names.clean_user(revision["user"]), comment)
                 print(u"\t".join(fields), file=f)
 
 
