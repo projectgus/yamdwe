@@ -119,6 +119,14 @@ class Importer(object):
                 aliases_result.append(alias['*'])
         return file_namespace['*'], aliases_result
 
+    def get_main_pagetitle(self):
+        """
+        Return the title of the main Mediawiki page
+        """
+        query = { 'action' : 'query', 'meta' : 'siteinfo', 'siprop' : 'general' }
+        result = self.mw.call(query)['query']
+        return result['general'].get("mainpage", "Main")
+
 
 
 

@@ -12,7 +12,7 @@ Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import argparse, sys, codecs, getpass
+import argparse, sys, codecs, getpass, datetime
 from pprint import pprint
 import mediawiki, dokuwiki, wikicontent
 
@@ -41,9 +41,23 @@ def main():
     canonical_file, aliases = importer.get_file_namespaces()
     wikicontent.set_file_namespaces(canonical_file, aliases)
 
-    # Convert all pages and page revisions
+    # Read all pages and page revisions
     pages = importer.get_all_pages()
     print("Found %d pages to export..." % len(pages))
+
+    # Add a shameless "exported by yamdwe" note to the front page of the wiki
+    mainpage = importer.get_main_pagetitle()
+    for page in pages:
+        if page["title"] == mainpage:
+            latest = dict(page["revisions"][0])
+            latest["user"] = "yamdwe"
+            now = datetime.datetime.utcnow().replace(microsecond=0)
+            latest["timestamp"] = now.isoformat() + "Z"
+            latest["comment"] = "Automated note about use of yamdwe Dokuwiki import tool"
+            latest["*"] += "\n\n(Automatically exported to Dokuwiki from Mediawiki by [https://github.com/projectgus/yamdwe Yamdwe] on %s.)" % (datetime.date.today().strftime("%x"))
+            page["revisions"].insert(0, latest)
+
+    # Export pages to Dokuwiki format
     exporter.write_pages(pages)
 
     # Bring over images
