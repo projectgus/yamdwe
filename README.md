@@ -13,6 +13,7 @@ Mediawiki install to a Dokuwiki install.
 * Parses MediaWiki syntax using the [mwlib library](http://mwlib.readthedocs.org/en/latest/index.html) (as used by Wikipedia), so can convert most pages very cleanly - minimal manual cleanup.
 * Syntax support includes: tables, image embeds, code blocks.
 * Uses the MediaWiki API to export pages and images, so a MediaWiki install can be exported remotely and without admin privileges (NB: Yamdwe does hit the API quite hard, so please do not export other people's wikis for fun. Or, at minimum, please read their Terms of Service first and comply by them.)
+* Supports logging in to Mediawiki to export, and also HTTP Basic Auth.
 
 # Tested with
 
@@ -82,6 +83,8 @@ the same name will be overwritten.
 To start an export, you will need the URL of the mediawiki API (usually http://mywiki/wiki/api.php or similar) and the local path to the Dokuwiki installation.
 
     yamdwe.py MEDIAWIKI_API_URL DOKUWIKI_ROOT_PATH
+
+If you need to log in to to your Mediawiki install (either with a Mediawiki username, or via HTTP Basic Auth) then run `yamdwe.py -h` to view the command line options for authentication.
 
 If installation goes well it should print the names of pages and images as it is exporting, and finally print "Done". This process can be slow, and can load up the Mediawiki server for large wikis.
 

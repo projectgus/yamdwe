@@ -8,6 +8,7 @@ Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 import os, os.path, gzip, shutil, re, requests, time, codecs
+from requests.auth import HTTPBasicAuth
 import wikicontent
 import simplemediawiki
 import names
@@ -40,13 +41,14 @@ class Exporter(object):
             self._convert_page(page)
         self._aggregate_changes(self.meta, "_dokuwiki.changes")
 
-    def write_images(self, images, file_namespace):
+    def write_images(self, images, file_namespace, http_user=None, http_pass=None):
         """
         Given 'images' as a list of mediawiki image metadata API entries,
         download and write out dokuwiki images. Does not bring over revisions.
 
         Images are all written to the file_namespace specified (file: by default), to match mediawiki.
         """
+        auth=None if http_user is None else HTTPBasicAuth(http_user, http_pass)
         file_namespace = file_namespace.lower()
         filedir = os.path.join(self.data, "media", file_namespace)
         ensure_directory_exists(filedir)
@@ -55,7 +57,7 @@ class Exporter(object):
         for image in images:
             # download the image from the Mediawiki server
             print("Downloading %s..." % image['name'])
-            r = requests.get(image['url'])
+            r = requests.get(image['url'], auth=auth)
             # write the actual image out to the data/file directory
             name = make_dokuwiki_pagename(image['name'])
             imagepath = os.path.join(filedir, name)
