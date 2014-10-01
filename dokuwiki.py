@@ -7,7 +7,7 @@ Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import os, os.path, gzip, shutil, re, requests, time, codecs
+import os, os.path, gzip, shutil, re, requests, calendar, codecs
 from requests.auth import HTTPBasicAuth
 import wikicontent
 import simplemediawiki
@@ -179,7 +179,7 @@ def get_timestamp(node):
     Return a dokuwiki-Compatible Unix int timestamp for a mediawiki API page/image/revision
     """
     dt = simplemediawiki.MediaWiki.parse_date(node['timestamp'])
-    return int(time.mktime(dt.timetuple()))
+    return int(calendar.timegm(dt.utctimetuple()))
 
 def ensure_directory_exists(path):
     if not os.path.isdir(path):
