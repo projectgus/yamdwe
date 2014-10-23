@@ -110,7 +110,10 @@ def convert(style, trailing_newline):
 def convert(url, trailing_newline):
     text = convert_children(url).strip(" ")
     url = url.caption
-    return "[[%s|%s]]" % (url, text)
+    if len(text):
+        return "[[%s|%s]]" % (url, text)
+    else:
+        return "%s" % (url, text)
 
 @visitor.when(URL)
 def convert(url, trailing_newline):
@@ -141,9 +144,9 @@ def convert(link, trailing_newline):
     text = convert_children(link).strip(" ")
     pagename = dokuwiki.make_dokuwiki_pagename(link.target)
     if len(text):
-        return "[[%s]]" % pagename
-    else:
         return "[[%s|%s]]" % (pagename, text)
+    else:
+        return "[[%s]]" % pagename
 
 @visitor.when(CategoryLink)
 def convert(link, trailing_newline):
