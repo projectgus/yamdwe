@@ -4,7 +4,7 @@ Simple name munging functions used by both yamdwe.py and yamdwe_users.py
 Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
-import re, os.path
+import re, os.path, unicodedata
 
 def clean_id(name):
     """
@@ -14,7 +14,13 @@ def clean_id(name):
     call make_dokuwiki_pagename)
     """
     main,ext = os.path.splitext(name)
-    result = (re.sub(r'[^\w/:]+', '_', main) + ext).lower()
+
+    # remove accents
+    decomposed = unicodedata.normalize("NFKD", main)
+    no_accent = ''.join(c for c in decomposed if ord(c)<0x7f)
+
+    # recombine without any other characters
+    result = (re.sub(r'[^\w/:]+', '_', no_accent) + ext).lower()
     while "__" in result:
         result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
     return result
