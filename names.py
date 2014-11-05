@@ -16,8 +16,11 @@ def clean_id(name):
     main,ext = os.path.splitext(name)
 
     # remove accents
-    decomposed = unicodedata.normalize("NFKD", main)
-    no_accent = ''.join(c for c in decomposed if ord(c)<0x7f)
+    try:
+        decomposed = unicodedata.normalize("NFKD", main)
+        no_accent = ''.join(c for c in decomposed if ord(c)<0x7f)
+    except TypeError:
+        no_accent = main # name was plaintext to begin with
 
     # recombine without any other characters
     result = (re.sub(r'[^\w/:]+', '_', no_accent) + ext).lower()
