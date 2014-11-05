@@ -113,7 +113,7 @@ def convert(url, trailing_newline):
     if len(text):
         return "[[%s|%s]]" % (url, text)
     else:
-        return "%s" % (url, text)
+        return "%s" % (url)
 
 @visitor.when(URL)
 def convert(url, trailing_newline):
