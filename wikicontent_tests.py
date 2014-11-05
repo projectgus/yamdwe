@@ -32,11 +32,14 @@ def run_test(testdir):
     dw = _readfile(testdir, "dokuwiki.txt")
     notes = _readfile(testdir, "notes.txt")
 
+    # use directory name as the page name
+    pagename = os.path.split(testdir)[1]
+
     if len(mw) == 0:
         print("WARNING: No mediawiki input!!!")
 
     try:
-        converted = wikicontent.convert_pagecontent("(test)", mw)
+        converted = wikicontent.convert_pagecontent(pagename, mw)
         if converted == dw:
             return True
     except:
