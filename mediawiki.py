@@ -99,23 +99,26 @@ class Importer(object):
     def get_file_namespaces(self):
         """
         Return a tuple. First entry is the name used by default for the file namespace (which dokuwiki will also use.)
-        Second entry is a list of all aliases used for that namespace.
+        Second entry is a list of all aliases used for that namespace, and aliases used for the 'media' namespace.
         """
         query = { 'action' : 'query', 'meta' : 'siteinfo', 'siprop' : 'namespaces|namespacealiases' }
         result = self.mw.call(query)['query']
         namespaces = result['namespaces'].values()
         aliases = result.get('namespacealiases', {})
         file_namespace = {'*' : 'Files', 'canonical' : 'File'}
+        media_namespace = {'*' : 'Media', 'canonical' : 'Media'}
         # search for the File namespace
         for namespace in namespaces:
-            if namespace['canonical'] == 'File':
+            if namespace.get('canonical', None) == 'File':
                 file_namespace = namespace
-                break
-        # result starts with the file namespace value ('*' key) and canonical value
-        aliases_result = [ file_namespace['canonical'] ]
-        # look for any aliases searching the file namespace id, add to the list
+            elif namespace.get('canonical', None) == 'Media':
+                media_namespace = namespace
+        # alias list starts with the file & media namespace canonical values, and the media "real" value
+        aliases_result = [ file_namespace['canonical'], media_namespace['canonical'], media_namespace['*'] ]
+        # look for any aliases by searching the file namespace id, add to the list
+        ids = [ file_namespace.get('id', None), media_namespace.get('id', None) ]
         for alias in aliases:
-            if alias['id'] == file_namespace.get('id', None):
+            if alias['id'] in ids:
                 aliases_result.append(alias['*'])
         return file_namespace['*'], aliases_result
 
