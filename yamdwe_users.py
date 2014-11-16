@@ -94,7 +94,10 @@ def get_mediawiki_users(host, user, password, dbname, tableprefix):
     users = {}
 
     def _escape(field):
-        return unicode(field, "utf-8").replace(":", r"\:")
+        if isinstance(field,unicode):
+            return field.replace(":", r"\:")
+        else:
+            return unicode(field, "utf-8").replace(":", r"\:")
 
     for row in c.fetchall():
         login = names.clean_user(unicode(row[0], "utf-8"))
