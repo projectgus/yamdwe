@@ -1,5 +1,3 @@
-
-
 # Yet Another Mediawiki to DokuWiki Exporter
 
 Yamdwe is made up of two Python programs to export an existing
@@ -15,11 +13,12 @@ Mediawiki install to a Dokuwiki install.
 * Uses the MediaWiki API to export pages and images, so a MediaWiki install can be exported remotely and without admin privileges (NB: Yamdwe does hit the API quite hard, so please do not export other people's wikis for fun. Or, at minimum, please read their Terms of Service first and comply by them.)
 * Supports logging in to Mediawiki to export, and also HTTP Basic Auth.
 
-# Tested with
+# Compatible Versions
 
-* Dokuwiki 2014-05-05 "Ponder Stibbons" (should work on any recent version, see below for notes about user passwords.)
-* MediaWiki 1.19.1 (should work on 1.13 or newer.)
-* A smallish wiki. Subsequent users have successfully run yamdwe on some substantially larger wikis.
+* Dokuwiki 2014-09-29a "Hrun", but should work on any recent version. Exporting users only works on 2014-09-29a or newer (see below).
+* MediaWiki 1.13 or newer (ie any recent version, 1.13 is from *2008*!)
+
+Yamdwe has now been used successfully on many wikis of various sizes. If you've used it on a particularly large or unusual wiki, please let me know!
 
 # Requirements
 
@@ -108,7 +107,7 @@ Any settings you're unsure about (like `--prefix` for table prefix)
 can be found in the LocalSettings.php file of your Mediawiki
 installation.
 
-yamdwe_users exports mediawiki password hashes to a dokuwiki "basicauth" text file. These imported passwords won't work with the current stable Dokuwiki version (2014-05-05 "Ponder Stibbons".) However they will work with the current development version, or if you patch with [this commit](https://github.com/splitbrain/dokuwiki/commit/42aeaf8323271f65bb906e11c6126d3a2d060a3f).
+yamdwe_users exports mediawiki password hashes to a dokuwiki "basicauth" text file. These imported passwords require Dokuwiki version 2014-09-29 "Hrun" or newer. On older Dokuwiki installs the password file format is not compatible and it will break user auth. The best thing to do is to update to 2014-09-29 or newer before running `yamdwe_users.py`.
 
 ## Post Import Steps
 
