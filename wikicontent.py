@@ -226,6 +226,9 @@ def convert(tag, trailing_newline):
         # deal with the ImageLinks above
         for child in tag.children:
             child.in_gallery = True
+    elif tag.tagname == "ref":
+        # references get converted to footnotes
+        return "((" + convert_children(tag) + "))"
 
     return convert_children(tag)
 
