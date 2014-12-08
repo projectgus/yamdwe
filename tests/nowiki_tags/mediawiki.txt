@@ -1,0 +1,7 @@
+<nowiki>Non-wiki content in plaintext</nowiki>
+
+<ul>
+<li><nowiki>Non-wiki content in list</nowiki></li>
+</ul>
+
+<nowiki><ref>Mediawiki tags not converted inside</ref> <tt>here</tt></nowiki>

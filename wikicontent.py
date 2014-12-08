@@ -47,6 +47,11 @@ def convert_pagecontent(title, content):
     Convert a string in Mediawiki content format to a string in
     Dokuwiki content format.
     """
+    # wrap the "magic" marker tag <__mw_nowiki> around <nowiki>, as
+    # as mwlib just discards it otherwise and we can't detect it within the parser.
+    # We keep the inner <nowiki> so the mwlib parser still skips that content
+    content = re.sub(r"<nowiki>.+</nowiki>", lambda e: "<__mw_nowiki>"+e.group(0)+"</__mw_nowiki>", content)
+
     root = uparser.parseString(title, content) # create parse tree
     return convert(root, False)
 
@@ -73,7 +78,16 @@ def convert(node, trailing_newline):
 
 @visitor.when(Text)
 def convert(text, trailing_newline):
-    return text.caption
+    magic_nw_tag = "<__mw_nowiki>"
+    if text._text == magic_nw_tag:
+        has_trailing_newline = (text.caption[-1] == '\n')
+        suffix = ""
+        if has_trailing_newline:
+            text.caption = text.caption[:-1]
+            suffix = "\n"
+        return "<nowiki>" + text.caption[len(magic_nw_tag):-1-len(magic_nw_tag)] + "</nowiki>" + suffix
+    else:
+        return text.caption
 
 @visitor.when(Section)
 def convert(section, trailing_newline):
