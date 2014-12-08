@@ -68,14 +68,18 @@ def run_test(testdir):
     print(DELIMITER)
     return False
 
+def tests_dirpath():
+    """ Return path to the test directory """
+    execdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    return os.path.join(execdir, "tests")
+
 def run_all_tests():
     """
     Run all tests. Return True on success.
     """
     successes = 0
     testsrun = 0
-    execdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    testsdir = os.path.join(execdir, "tests")
+    testsdir = tests_dirpath()
     for test in os.listdir(testsdir):
         path = os.path.join(testsdir, test)
         if os.path.isdir(path):
@@ -98,7 +102,19 @@ def _readfile(dirpath, filename):
 
 if __name__ == "__main__":
     yamdwe.enable_unicode_output()
-    if run_all_tests():
+    try:
+        if sys.argv[1] in ["-h", "--help"]:
+            print("Usage: %s <optional test name>" % (sys.argv[0]))
+            print("(If test name not specified, all tests in tests/ directory will be run.)")
+            sys.exit(0)
+    except IndexError:
+        pass
+
+    try:
+        res = run_test(os.path.join(tests_dirpath(), sys.argv[1]))
+    except IndexError: # no argv[1], so run all
+        res = run_all_tests()
+    if res:
         sys.exit(0)
     else:
         sys.exit(1)
