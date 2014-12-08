@@ -229,6 +229,8 @@ def convert(tag, trailing_newline):
     elif tag.tagname == "ref":
         # references get converted to footnotes
         return "((" + convert_children(tag) + "))"
+    elif tag.tagname == "references":
+        print("WARNING: <references> tag has no equivalent in Dokuwiki, ignoring...")
 
     return convert_children(tag)
 
