@@ -1,0 +1,21 @@
+== Section A ==
+
+this section has a plaintext anchor link. [[#Section C]]
+
+== Section B ==
+
+this section has an anchor link formatted as Mediawiki formats them. [[#Section_A]]
+
+== Section C ==
+
+this section has a page link with a plaintext anchor component [[Page#Section C]]
+
+== Section D & complex Noteworthiness ==
+
+this section has a page link with a complex anchor component [[#Section D & complex Noteworthiness]]
+
+=== Bork bork ===
+
+this subsection has a page link with a mediawiki-formatted anchor component. [[Page#Section_C]]
+
+

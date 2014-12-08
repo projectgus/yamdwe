@@ -136,13 +136,13 @@ def convert(link, trailing_newline):
     prealign = " " if link.align in [ "center", "right" ] else ""
     postalign = " " if link.align in [ "center", "left" ] else ""
     target = canonicalise_file_namespace(link.target)
-    target = dokuwiki.make_dokuwiki_pagename(target)
+    target = convert_internal_link(target)
     return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
 
 @visitor.when(ArticleLink)
 def convert(link, trailing_newline):
     text = convert_children(link).strip(" ")
-    pagename = dokuwiki.make_dokuwiki_pagename(link.target)
+    pagename = convert_internal_link(link.target)
     if len(text):
         return "[[%s|%s]]" % (pagename, text)
     else:
@@ -236,3 +236,12 @@ def convert(node, trailing_newline):
         print("WARNING: Unsupported node type: %s" % (node.__class__))
     return convert_children(node)
 
+
+def convert_internal_link(mw_target):
+    """
+    Convert an internal Mediawiki link, with or without an anchor # in the middle.
+
+    Same as converting a plain pagename, only we want to preserve any #s in the target text.
+    """
+    parts = mw_target.split("#")
+    return "#".join([dokuwiki.make_dokuwiki_pagename(part) for part in parts])
