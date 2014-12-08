@@ -28,8 +28,8 @@ def run_test(testdir):
     Return True on success
     """
     print("Running %s..." % testdir)
-    mw = _readfile(testdir, "mediawiki.txt")
-    dw = _readfile(testdir, "dokuwiki.txt")
+    mw = _readfile(testdir, "mediawiki.txt").strip() # ignore leading/trailing whitespace, too annoying
+    dw = _readfile(testdir, "dokuwiki.txt").strip() # ignore leading/trailing whitespace, too annoying
     notes = _readfile(testdir, "notes.txt")
 
     # use directory name as the page name
@@ -39,7 +39,7 @@ def run_test(testdir):
         print("WARNING: No mediawiki input!!!")
 
     try:
-        converted = wikicontent.convert_pagecontent(pagename, mw)
+        converted = wikicontent.convert_pagecontent(pagename, mw).strip()
         if converted == dw:
             return True
     except:
