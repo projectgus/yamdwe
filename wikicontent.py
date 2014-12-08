@@ -228,8 +228,15 @@ def convert(pre, trailing_newline):
 
 @visitor.when(TagNode)
 def convert(tag, trailing_newline):
-    if tag.tagname == "tt":
-        return "''" + convert_children(tag) + "''"
+    # dict maps mediawiki tag name to tuple of starting, ending dokuwiki tag
+    simple_tagitems = {
+        "tt" : ("''", "''"),
+        "ref" : ("((","))"), # references converted to footnotes
+        "code" : ("<code>","</code>"),
+    }
+    if tag.tagname in simple_tagitems:
+        pre,post = simple_tagitems[tag.tagname]
+        return pre + convert_children(tag) + post
     elif tag._text is not None:
         if tag._text.replace(" ","").replace("/","") == "<br>":
             return "\n" # this is a oneoff hack for one wiki page covered in <br/>
@@ -240,9 +247,6 @@ def convert(tag, trailing_newline):
         # deal with the ImageLinks above
         for child in tag.children:
             child.in_gallery = True
-    elif tag.tagname == "ref":
-        # references get converted to footnotes
-        return "((" + convert_children(tag) + "))"
     elif tag.tagname == "references":
         print("WARNING: <references> tag has no equivalent in Dokuwiki, ignoring...")
 

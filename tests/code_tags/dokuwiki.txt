@@ -1,0 +1,5 @@
+<code>Code tags should work as plain paragraphs</code>
+
+  *  Code tags <code>should work in lists</code>
+  *  Another item
+
