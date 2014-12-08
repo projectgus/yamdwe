@@ -91,10 +91,6 @@ Yamdwe may warn you at the end that it is unable to set [correct permissions for
 
 Inevitably some content will not import cleanly, so a manual check/edit/cleanup pass is almost certainly necessary.
 
-## Possible Manual Cleanup Items
-
-* Some uncommon URL schemes, such as `file://`, are not detected by Dokuwiki as links unless you [add a scheme.local.conf file as described here](https://www.dokuwiki.org/urlschemes)
-
 ## Exporting users
 
 This step is optional, but it's nice as it matches the user names in the imported revision history with actual users in dokuwiki.
@@ -119,6 +115,12 @@ yamdwe_users exports mediawiki password hashes to a dokuwiki "basicauth" text fi
   the dokuwiki `data/conf/users.auth.php` file and other data/conf files.
 
 * The search index needs to be manually rebuilt with the contents of the new pages. The [searchindex plugin](https://www.dokuwiki.org/plugin:searchindex) can do this.
+
+## Common Manual Cleanup Items
+
+* Page naming and namespaces will probably need some rearranging/renaming to seem "natural" in Dokuwiki. The [move Plugin](https://www.dokuwiki.org/plugin:move) makes this straightforward.
+
+* Some uncommon URL schemes, such as `file://`, are not detected by Dokuwiki as links unless you [add a scheme.local.conf file as described here](https://www.dokuwiki.org/urlschemes)
 
 
 # Known Issues
