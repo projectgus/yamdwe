@@ -91,6 +91,10 @@ Yamdwe may warn you at the end that it is unable to set [correct permissions for
 
 Inevitably some content will not import cleanly, so a manual check/edit/cleanup pass is almost certainly necessary.
 
+## Possible Manual Cleanup Items
+
+* Some uncommon URL schemes, such as `file://`, are not detected by Dokuwiki as links unless you [add a scheme.local.conf file as described here](https://www.dokuwiki.org/urlschemes)
+
 ## Exporting users
 
 This step is optional, but it's nice as it matches the user names in the imported revision history with actual users in dokuwiki.
