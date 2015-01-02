@@ -107,7 +107,7 @@ class Exporter(object):
                 os.utime(txtpath, (timestamp,timestamp))
             # create gzipped attic revision
             atticname = "%s.%s.txt.gz" % (pagename, timestamp)
-            atticpath = os.path.join(atticdir, atticname)
+            atticpath = os.path.join(atticdir, atticname).encode("utf-8")
             with gzip.open(atticpath, "wb") as f:
                 f.write(content.encode("utf-8"))
             os.utime(atticpath, (timestamp,timestamp))
