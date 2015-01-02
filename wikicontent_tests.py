@@ -15,11 +15,15 @@ Licensed under New BSD License as described in the file LICENSE.
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import sys, os, codecs, inspect, traceback
+import sys, os, codecs, inspect, traceback, difflib, unicodedata
 from pprint import pprint
 import wikicontent, yamdwe
 
-DELIMITER="*"*40
+DELIMITER="@"*40
+
+def prep_difflines(content):
+    """ difflib takes input in this "readlines" compatible format """
+    return [ x+"\n" for x in content.split("\n") ]
 
 def run_test(testdir):
     """
@@ -59,12 +63,10 @@ def run_test(testdir):
     print("Input Mediawiki:")
     print(mw)
     print(DELIMITER)
-    print("Expected Output:")
-    print(DELIMITER)
-    print(dw)
-    print(DELIMITER)
-    print("Actual Output:")
-    print(converted)
+
+    diff = difflib.unified_diff(prep_difflines(dw), prep_difflines(converted), fromfile='Expected Dokuwiki', tofile='Actual Dokuwiki', lineterm="\n")
+    sys.stdout.writelines(diff)
+    sys.stdout.write("\n")
     print(DELIMITER)
     return False
 
