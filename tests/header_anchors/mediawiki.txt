@@ -18,4 +18,10 @@ this section has a page link with a complex anchor component [[#Section D & comp
 
 this subsection has a page link with a mediawiki-formatted anchor component. [[Page#Section_C]]
 
+==== SectionHeaderWithUppercaseLetters E =====
+[[#SectionHeaderWithUppercaseLetters E]]
+
+
+==== Section header with - minus ====
+[[#Section header with - minus]]
 
