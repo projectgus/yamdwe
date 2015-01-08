@@ -26,6 +26,8 @@ def clean_id(name):
     result = (re.sub(r'[^\w/:]+', '_', no_accent) + ext).lower()
     while "__" in result:
         result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
+    # remove heading and trailing underscores
+    result=re.sub('^_|_$', '', result)
     return result
 
 def clean_user(name):
