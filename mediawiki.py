@@ -37,6 +37,7 @@ class Importer(object):
         query = {'list' : 'allpages'}
         print("Getting list of pages...")
         pages = self._query(query, [ 'allpages' ])
+        
         print("Query page revisions...")
         for page in pages:
             page["revisions"] = self._get_revisions(page)
@@ -95,6 +96,17 @@ class Importer(object):
                 continuations += 1
             except KeyError:
                 return result
+
+    def get_all_namespaces(self):
+        """
+        Return a list of dictionaries, each containing the keys 
+        'subpages' (non-empty=may contain subpages),'*' (Name), 
+        'id' (numeric), 'canonical' (canonical name)
+        """
+        query = { 'action' : 'query', 'meta' : 'siteinfo', 'siprop' : 'namespaces|namespacealiases' }
+        result = self.mw.call(query)['query']
+        namespaces = result['namespaces'].values()
+        return namespaces
 
     def get_file_namespaces(self):
         """
