@@ -23,7 +23,8 @@ def clean_id(name):
         no_accent = main # name was plaintext to begin with
 
     # recombine without any other characters
-    result = (re.sub(r'[^\w/:]+', '_', no_accent) + ext).lower()
+#    result = (re.sub(r'[^\w/:]+', '_', no_accent) + ext).lower()
+    result = (re.sub(r'[^\w]+', '_', no_accent) + ext).lower()
     while "__" in result:
         result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
     # remove heading and trailing underscores
