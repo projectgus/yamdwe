@@ -26,3 +26,12 @@ this section has a page link with a complex anchor component [[#section_d_comple
 
 
 this subsection has a page link with a mediawiki-formatted anchor component. [[page#section_c]]
+
+
+==== SectionHeaderWithUppercaseLetters E =====
+[[#sectionheaderwithuppercaseletters_E]]
+
+
+==== Section header with - minus ====
+[[#section_header_with_-_minus]]
+
