@@ -5,3 +5,6 @@
 </ul>
 
 <nowiki><ref>Mediawiki tags not converted inside</ref> <tt>here</tt></nowiki>
+
+<tt><nowiki><code></code></nowiki></tt> and something not so trivial <tt><nowiki>&lt;nowiki&gt;&lt;/nowiki&gt;</nowiki></tt>
+
