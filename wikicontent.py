@@ -23,6 +23,7 @@ def set_file_namespaces(canonical_alias, aliases):
     canonical_alias is the single namespace that dokuwiki will use (default File:)
     aliases is a list of alternative namespace names that will be converted to the canonical alias
     """
+    print("match localised namespaces for files/images %s <- %s"%(canonical_alias,aliases))
     global mw_file_namespace_aliases
     global dw_file_namespace
     dw_file_namespace = canonical_alias + ":"
@@ -131,10 +132,12 @@ def convert(url, trailing_newline):
 
 @visitor.when(URL)
 def convert(url, trailing_newline):
+    print(' ... converting URL %s'%url)
     return url.caption
 
 @visitor.when(ImageLink)
 def convert(link, trailing_newline):
+    print(' ... converting %s'%link)
     suffix = ""
     if link.width is not None:
         if link.height is None:
@@ -149,12 +152,16 @@ def convert(link, trailing_newline):
             pass # not in a gallery
     prealign = " " if link.align in [ "center", "right" ] else ""
     postalign = " " if link.align in [ "center", "left" ] else ""
+    print("1",link.target)
     target = canonicalise_file_namespace(link.target)
-    target = convert_internal_link(target)
+    print("2",target)
+    target = "/".join(convert_internal_link(tg) for tg in target.split(":"))
+    print(target, suffix, prealign, postalign)
     return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
 
 @visitor.when(ArticleLink)
 def convert(link, trailing_newline):
+    print(' ... converting %s'%link)
     text = convert_children(link).strip(" ")
     pagename = convert_internal_link(link.target)
     if len(text):
@@ -164,13 +171,17 @@ def convert(link, trailing_newline):
 
 @visitor.when(CategoryLink)
 def convert(link, trailing_newline):
+    print(' ... converting %s'%link)
     # Category functionality can be implemented with plugin:tag, but not used here
     return ""
 
 @visitor.when(NamespaceLink)
 def convert(link, trailing_newline):
-    if is_file_namespace(link.target): # is a link to a file or image
-        filename = dokuwiki.make_dokuwiki_pagename(canonicalise_file_namespace(link.target))
+    print(' ... converting %s'%link)
+    print('     ... testing if %s is a file link'%re.sub(r'^:','',link.target))
+    if is_file_namespace(re.sub(r'^:','',link.target)): # is a link to a file or image
+        filename = dokuwiki.make_dokuwiki_pagename(canonicalise_file_namespace(re.sub(r'^:','',link.target)))
+        print('     ... yes, it links to %s'%filename)
         caption = convert_children(link).strip()
         if len(caption) > 0:
             return "{{%s%s}}" % (filename, caption)
