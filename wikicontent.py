@@ -175,8 +175,10 @@ def convert(link, trailing_newline):
 @visitor.when(NamespaceLink)
 def convert(link, trailing_newline):
     print(' ... converting %s'%link.target)
-    if is_file_namespace(re.sub(r'^:','',link.target)): # is a link to a file or image
-        filename = dokuwiki.make_dokuwiki_pagename(canonicalise_file_namespace(re.sub(r'^:','',link.target)))
+    target = re.sub(r'^:','',link.target)
+    if is_file_namespace(target)): # is a link to a file or image
+		target = canonicalise_file_namespace(target)
+		filename = "/".join(convert_internal_link(tg) for tg in target.split(":"))
         print('     ... is a file link to %s'%filename)
         caption = convert_children(link).strip()
         if len(caption) > 0:
