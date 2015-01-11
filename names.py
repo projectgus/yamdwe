@@ -4,7 +4,7 @@ Simple name munging functions used by both yamdwe.py and yamdwe_users.py
 Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
-import re, os.path, unicodedata
+import re, os.path, unicodedata, urllib
 
 def clean_id(name):
     """
@@ -13,6 +13,9 @@ def clean_id(name):
     Ignores both slashes and colons as valid namespace choices (to convert slashes to colons,
     call make_dokuwiki_pagename)
     """
+    # decode URL-ecoded characters
+    name=urllib.unquote(name)
+
     main,ext = os.path.splitext(name)
 
     # remove accents

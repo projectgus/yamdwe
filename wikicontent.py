@@ -98,7 +98,8 @@ def convert(section, trailing_newline):
     elif section.tagname == "@section":
         level = section.level
         heading = convert(section.children.pop(0), trailing_newline)
-        heading_boundary = "="*(6-level)
+        #highest level dokuwiki is six ='s, ->_7_-1
+        heading_boundary = "="*(7-level)
         result = "\n%s %s %s\n" % (heading_boundary, heading, heading_boundary)
     else:
         print("Unknown tagname %s" % section.tagname)
@@ -153,7 +154,7 @@ def convert(link, trailing_newline):
     prealign = " " if link.align in [ "center", "right" ] else ""
     postalign = " " if link.align in [ "center", "left" ] else ""
     target = canonicalise_file_namespace(link.target)
-    target = "/".join(convert_internal_link(tg) for tg in target.split(":"))
+    target = ":".join(convert_internal_link(tg) for tg in target.split(":"))
     return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
 
 @visitor.when(ArticleLink)
@@ -176,18 +177,23 @@ def convert(link, trailing_newline):
 def convert(link, trailing_newline):
     print(' ... converting %s'%link.target)
     target = re.sub(r'^:','',link.target)
-    if is_file_namespae(target): # is a link to a file or image
+    if is_file_namespace(target): # is a link to a file or image
         target = canonicalise_file_namespace(target)
-        filename = "/".join(convert_internal_link(tg) for tg in target.split(":"))
-        print('     ... is a file link to %s'%filename)
-        caption = convert_children(link).strip()
-        if len(caption) > 0:
-            return "{{%s%s}}" % (filename, caption)
+        #non-detected file link has a caption: sparate it
+        if re.match(r'\|',target):
+            target,caption=target.split('|')
         else:
-            return "{{%s}}" % filename
+            caption = convert_children(link).strip()
+        filename = convert_internal_link(re.sub(r'.*[:/]','',target))
+        target = ":".join(convert_internal_link(tg) for tg in target.split(":"))
+        print('     ... is a file link to %s'%filename)
+        if len(caption) > 0:
+            return "{{%s|%s}}" % (target, caption)
+        else:
+            return "{{%s}}" % (target)
     else:
         print("WARNING: Ignoring namespace link to " + link.target)
-    return convert_children(link)
+        return convert_children(link)
 
 
 @visitor.when(ItemList)
