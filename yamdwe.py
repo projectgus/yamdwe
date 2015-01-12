@@ -41,7 +41,9 @@ def main():
     canonical_file, aliases = importer.get_file_namespaces()
     wikicontent.set_file_namespaces(canonical_file, aliases)
 
+
     # Read all pages and page revisions
+    namespaces=importer.get_all_namespaces()
     pages = importer.get_all_pages()
     print("Found %d pages to export..." % len(pages))
 
@@ -58,7 +60,7 @@ def main():
             page["revisions"].insert(0, latest)
 
     # Export pages to Dokuwiki format
-    exporter.write_pages(pages)
+    exporter.write_pages(pages,namespaces)
 
     # Bring over images
     images = importer.get_all_images()

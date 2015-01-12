@@ -23,10 +23,11 @@ def set_file_namespaces(canonical_alias, aliases):
     canonical_alias is the single namespace that dokuwiki will use (default File:)
     aliases is a list of alternative namespace names that will be converted to the canonical alias
     """
+    print("match localised namespaces for files/images %s <- %s"%(canonical_alias,aliases))
     global mw_file_namespace_aliases
     global dw_file_namespace
     dw_file_namespace = canonical_alias + ":"
-    mw_file_namespace_aliases = re.compile("^(%s):" % "|".join(aliases), re.IGNORECASE)
+    mw_file_namespace_aliases = re.compile("^(%s):" % "|".join([canonical_alias]+aliases), re.IGNORECASE)
 
 def is_file_namespace(target):
     """
@@ -97,7 +98,8 @@ def convert(section, trailing_newline):
     elif section.tagname == "@section":
         level = section.level
         heading = convert(section.children.pop(0), trailing_newline)
-        heading_boundary = "="*(6-level)
+        #highest level dokuwiki is six ='s, ->_7_-1
+        heading_boundary = "="*(7-level)
         result = "\n%s %s %s\n" % (heading_boundary, heading, heading_boundary)
     else:
         print("Unknown tagname %s" % section.tagname)
@@ -131,10 +133,12 @@ def convert(url, trailing_newline):
 
 @visitor.when(URL)
 def convert(url, trailing_newline):
+    print(' ... converting URL %s'%url.caption)
     return url.caption
 
 @visitor.when(ImageLink)
 def convert(link, trailing_newline):
+    print(' ... converting %s'%link.target)
     suffix = ""
     if link.width is not None:
         if link.height is None:
@@ -150,11 +154,12 @@ def convert(link, trailing_newline):
     prealign = " " if link.align in [ "center", "right" ] else ""
     postalign = " " if link.align in [ "center", "left" ] else ""
     target = canonicalise_file_namespace(link.target)
-    target = convert_internal_link(target)
+    target = ":".join(convert_internal_link(tg) for tg in target.split(":"))
     return "{{%s%s%s%s}}" % (prealign, target, suffix, postalign)
 
 @visitor.when(ArticleLink)
 def convert(link, trailing_newline):
+    print(' ... converting %s'%link.target)
     text = convert_children(link).strip(" ")
     pagename = convert_internal_link(link.target)
     if len(text):
@@ -164,21 +169,31 @@ def convert(link, trailing_newline):
 
 @visitor.when(CategoryLink)
 def convert(link, trailing_newline):
+    print(' ... converting %s'%link.target)
     # Category functionality can be implemented with plugin:tag, but not used here
     return ""
 
 @visitor.when(NamespaceLink)
 def convert(link, trailing_newline):
-    if is_file_namespace(link.target): # is a link to a file or image
-        filename = dokuwiki.make_dokuwiki_pagename(canonicalise_file_namespace(link.target))
-        caption = convert_children(link).strip()
-        if len(caption) > 0:
-            return "{{%s%s}}" % (filename, caption)
+    print(' ... converting %s'%link.target)
+    target = re.sub(r'^:','',link.target)
+    if is_file_namespace(target): # is a link to a file or image
+        target = canonicalise_file_namespace(target)
+        #non-detected file link has a caption: sparate it
+        if re.match(r'\|',target):
+            target,caption=target.split('|')
         else:
-            return "{{%s}}" % filename
-
-    print("WARNING: Ignoring namespace link to " + link.target)
-    return convert_children(link)
+            caption = convert_children(link).strip()
+        filename = convert_internal_link(re.sub(r'.*[:/]','',target))
+        target = ":".join(convert_internal_link(tg) for tg in target.split(":"))
+        print('     ... is a file link to %s'%filename)
+        if len(caption) > 0:
+            return "{{%s|%s}}" % (target, caption)
+        else:
+            return "{{%s}}" % (target)
+    else:
+        print("WARNING: Ignoring namespace link to " + link.target)
+        return convert_children(link)
 
 
 @visitor.when(ItemList)
