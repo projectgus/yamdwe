@@ -63,6 +63,7 @@ def convert_pagecontent(title, content):
 
     root = uparser.parseString(title, content) # create parse tree
     context = {}
+    context["list_stack"] = []
     context["nowiki_plaintext"] = nowiki_plaintext # hacky way of attaching to child nodes
     return convert(root, context, False)
 
@@ -190,22 +191,16 @@ def convert(link, context, trailing_newline):
 
 @visitor.when(ItemList)
 def convert(itemlist, context, trailing_newline):
-    def apply_itemlist_properties(node):
-        # ItemLists are used for depth/style tracking - applies those attributes to all its children
-        for child in node.children:
-            try:
-                child.list_style = "* " if itemlist.tagname == "ul" else "- "
-                child.list_depth += 1
-            except AttributeError:
-                child.list_depth = 1
-            apply_itemlist_properties(child)
-    apply_itemlist_properties(itemlist)
-    return convert_children(itemlist, context)
+    context["list_stack"].append("* " if itemlist.tagname == "ul" else "- ")
+    converted_list = convert_children(itemlist, context)
+    context["list_stack"].pop()
+    return converted_list
 
 @visitor.when(Item)
 def convert(item, context, trailing_newline):
     item_content = convert_children(item, context)
-    return "  "*item.list_depth + item.list_style + item_content
+    list_stack = context["list_stack"]
+    return "  "*len(list_stack) + list_stack[-1] + item_content
 
 @visitor.when(Table)
 def convert(table, context, trailing_newline):
@@ -224,10 +219,7 @@ def convert(row, context, trailing_newline):
 
 @visitor.when(PreFormatted)
 def convert(pre, context, trailing_newline):
-    try:
-        in_list = item.list_depth > 0
-    except:
-        in_list = False
+    in_list = len(context.list_stack) > 0
     if trailing_newline and not in_list: # in its own paragraph, use a two space indent
         return "  " + convert_children(pre, context).replace("\n","\n  ").strip(" ")
     else: # inline in a list or a paragraph body, use <code> tags

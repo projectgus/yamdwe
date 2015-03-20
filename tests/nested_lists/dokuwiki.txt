@@ -1,0 +1,27 @@
+*  Top level 1
+  *  Top level 2
+    *  Next level 2.1
+    *  Next level 2.2
+      *  One more level 2.2.1
+      *  One more level 2.2.2
+    *  Next level 2.3
+    *  Next level 2.4
+  *  Top level 3
+    *  Next level 3.1
+      *  One more level 3.1.1
+        *  Getting serious 3.1.1.1
+    *  Next level 3.2
+  *  Top level 4
+  *  Top level 5
+
+  -  Numbered lists
+  -  Same deal
+    -  but with numbers
+      -  so many numbers
+    -  even more numbers
+  -  OK
+
+  *  Mixed lists?
+    -  Also a thing
+      -  Can we convert this?
+  *  Hopefully
