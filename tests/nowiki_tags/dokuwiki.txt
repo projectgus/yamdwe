@@ -1,11 +1,10 @@
 <nowiki>Non-wiki content in plaintext</nowiki>
 
-
   * <nowiki>Non-wiki content in list</nowiki>
 
 
 <nowiki><ref>Mediawiki tags not converted inside</ref> <tt>here</tt></nowiki>
+Dividing paragraph.
 
-''<code></code>'' and something no so trivial 
-<tt><nowiki><code></code></nowiki></tt> and something not so trivial <tt><nowiki>&lt;nowiki&gt;&lt;/nowiki&gt;</nowiki></tt>
+''<nowiki><code></code></nowiki>'' and something not so trivial ''<nowiki>&lt;nowiki&gt;&lt;/nowiki&gt;</nowiki>''
 
