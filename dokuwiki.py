@@ -194,6 +194,22 @@ def make_dokuwiki_pagename(mediawiki_name):
     result = mediawiki_name.replace(" ","_")
     return names.clean_id(camel_to_underscore(result)).replace("/",":")
 
+def make_dokuwiki_heading_id(mw_heading_name):
+    """
+    Convert a Mediawiki internal anchor heading link to the Dokuwiki anchor heading link id
+
+    Equivalent function in dokuwiki is _headerToLink in inc/parser/xhtml.php
+    which calls sectionID in inc/pageutils.php
+    """
+    result = names.clean_id(mw_heading_name, True)
+    result = re.sub(r'[:.]', '', result)
+
+    nums_stripped = result.lstrip("0123456789_-")
+    if len(nums_stripped):
+        return nums_stripped
+    else:
+        return "section"+re.sub(r"[^0-9]+", "", result)
+
 def camel_to_underscore(camelcase):
     """
     Convert a camelcased string to underscore_delimited (tweaked from this StackOverflow answer)

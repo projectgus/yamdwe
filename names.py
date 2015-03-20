@@ -6,7 +6,7 @@ Licensed under New BSD License as described in the file LICENSE.
 """
 import re, os.path, unicodedata
 
-def clean_id(name):
+def clean_id(name, preserve_case=False):
     """
     Return a 'clean' dokuwiki-compliant name. Based on the cleanID() PHP function in inc/pageutils.php
 
