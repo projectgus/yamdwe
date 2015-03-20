@@ -96,7 +96,7 @@ def convert(section, trailing_newline):
         pass
     elif section.tagname == "@section":
         level = section.level
-        heading = convert(section.children.pop(0), trailing_newline)
+        heading = convert(section.children.pop(0), trailing_newline).strip()
         heading_boundary = "="*(6-level)
         result = "\n%s %s %s\n" % (heading_boundary, heading, heading_boundary)
     else:

@@ -1,1 +1,1 @@
-Example from [[https://github.com/projectgus/yamdwe/issues/11|Issue 11]] [[ssh_schlussel]].
+Example from [[https://github.com/projectgus/yamdwe/issues/11|Issue 11]] [[ssh-schlussel]].
