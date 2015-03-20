@@ -50,7 +50,7 @@ def convert_pagecontent(title, content):
     # wrap the "magic" marker tag <__mw_nowiki> around <nowiki>, as
     # as mwlib just discards it otherwise and we can't detect it within the parser.
     # We keep the inner <nowiki> so the mwlib parser still skips that content
-    content = re.sub(r"<nowiki>.+</nowiki>", lambda e: "<__mw_nowiki>"+e.group(0)+"</__mw_nowiki>", content)
+    content = re.sub(r"<nowiki>.+?</nowiki>", lambda e: "<__mw_nowiki>"+e.group(0)+"</__mw_nowiki>", content)
 
     root = uparser.parseString(title, content) # create parse tree
     return convert(root, False)
