@@ -33,12 +33,28 @@ class Exporter(object):
         for subdir in [ self.meta, self.attic, self.pages]:
             ensure_directory_exists(subdir)
 
-    def write_pages(self, pages):
+    def write_pages(self, pages, namespaces):
         """
         Given 'pages' as a list of mediawiki pages with revisions attached, export them to dokuwiki pages
         """
         for page in pages:
-            self._convert_page(page)
+			"""
+			read the (numeric) namespace attribute and search
+			the matching namespace name
+			"""
+			namespace=None
+			ns=page['ns']
+			if ns == 0:
+				namespace=''
+			else:
+				for n in namespaces:
+					if ns == n['id']:
+						namespace=n['*']
+			if namespace==None:
+				raise RuntimeError("Page '%s' has unknown namespace ID: %i" % page,ns)
+
+			self._convert_page(page,namespace)
+            
         self._aggregate_changes(self.meta, "_dokuwiki.changes")
 
     def write_images(self, images, file_namespace, http_user=None, http_pass=None):
@@ -74,21 +90,33 @@ class Exporter(object):
         # aggregate all the new changes to the media_meta/_media.changes file
         self._aggregate_changes(os.path.join(self.data, "media_meta"), "_media.changes")
 
-    def _convert_page(self, page):
+    def _convert_page(self, page, namespace):
         """ Convert the supplied mediawiki page to a Dokuwiki page """
-        print("Converting %d revisions of page '%s'..." %
-              (len(page["revisions"]), page['title']))
+#        print("Converting %d revisions of page '%s'..." %
+#              (len(page["revisions"]), page['title']))
+        # remove leading namespace specifier, if any
+        page_title=re.sub('^'+namespace,'',page['title'])
+        
         # Sanitise the mediawiki pagename to something matching the dokuwiki pagename convention
-        full_title = make_dokuwiki_pagename(page['title'])
+        pagename = re.sub(r'_*[/:]+_*','_',make_dokuwiki_pagename(page_title))
+        if namespace!='':
+            namesparr=(namespace.replace("/",":")).split(':')
+            namesparr=map(make_dokuwiki_pagename(),namesparr)
+            page_ns  = ":".join(namesparr)
+        else:
+            page_ns=''
+        full_title=":".join((page_ns,pagename))
 
         # Mediawiki pagenames can contain namespace :s, convert these to dokuwiki / paths on the filesystem (becoming : namespaces in dokuwiki)
-        subdir, pagename = os.path.split(full_title.replace(':','/'))
+        subdir = page_ns.replace(":","/")
         pagedir = os.path.join(self.pages, subdir)
         metadir = os.path.join(self.meta, subdir)
         atticdir = os.path.join(self.attic, subdir)
         for d in pagedir, metadir, atticdir:
-            ensure_directory_exists(d)
-
+              ensure_directory_exists(d)
+        print("Converting page '%s' to '%s' (%d revisions) ..." %
+              (page['title'],pagename,len(page["revisions"])))
+        
         # Walk through the list of revisions
         revisions = list(reversed(page["revisions"])) # order as oldest first
         for revision in revisions:
@@ -192,7 +220,7 @@ def make_dokuwiki_pagename(mediawiki_name):
     Any namespacing that is in the form of a / is replaced with a :
     """
     result = mediawiki_name.replace(" ","_")
-    return names.clean_id(camel_to_underscore(result)).replace("/",":")
+    return names.clean_id(camel_to_underscore(result))
 
 def make_dokuwiki_heading_id(mw_heading_name):
     """

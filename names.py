@@ -4,7 +4,7 @@ Simple name munging functions used by both yamdwe.py and yamdwe_users.py
 Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
-import re, os.path, unicodedata
+import re, os.path, unicodedata, urllib
 
 def clean_id(name, preserve_case=False):
     """
@@ -13,6 +13,9 @@ def clean_id(name, preserve_case=False):
     Ignores both slashes and colons as valid namespace choices (to convert slashes to colons,
     call make_dokuwiki_pagename)
     """
+    # decode URL-ecoded characters
+    name=urllib.unquote(name)
+
     main,ext = os.path.splitext(name)
 
     # remove accents
@@ -23,11 +26,13 @@ def clean_id(name, preserve_case=False):
         no_accent = main # name was plaintext to begin with
 
     # recombine without any other characters
-    result = (re.sub(r'[^\w/:-]+', '_', no_accent) + ext)
+    result = (re.sub(r'[^\w-]+', '_', no_accent) + ext)
     if not preserve_case:
         result = result.lower()
     while "__" in result:
         result = result.replace("__", "_") # this is a hack, unsure why regex doesn't catch it
+    # remove heading and trailing underscores
+    result=re.sub('^_|_$', '', result)
     return result
 
 def clean_user(name):

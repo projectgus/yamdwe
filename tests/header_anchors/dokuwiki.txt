@@ -1,39 +1,39 @@
-==== Section A ====
+===== Section A =====
 
 
 this section has a plaintext anchor link. [[#Section_C]]
 
 
-==== Section B ====
+===== Section B =====
 
 
 this section has an anchor link formatted as Mediawiki formats them. [[#Section_A]]
 
 
-==== Section C ====
+===== Section C =====
 
 
 this section has a page link with a plaintext anchor component [[page#Section_C]]
 
 
-==== Section D & complex Noteworthiness ====
+===== Section D & complex Noteworthiness =====
 
 
 this section has a page link with a complex anchor component [[#Section_D_complex_Noteworthiness]]
 
 
-=== Bork bork ===
+==== Bork bork ====
 
 
 this subsection has a page link with a mediawiki-formatted anchor component. [[page#Section_C]]
 
 
-=== SectionHeaderWithUppercaseLetters E ===
+==== SectionHeaderWithUppercaseLetters E ====
 
 [[#SectionHeaderWithUppercaseLetters_E]]
 
 
-=== Section header with - minus ===
+==== Section header with - minus ====
 
 [[#Section_header_with_-_minus]]
 
