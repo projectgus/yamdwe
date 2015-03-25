@@ -219,7 +219,7 @@ def convert(row, context, trailing_newline):
 
 @visitor.when(PreFormatted)
 def convert(pre, context, trailing_newline):
-    in_list = len(context.list_stack) > 0
+    in_list = len(context["list_stack"]) > 0
     if trailing_newline and not in_list: # in its own paragraph, use a two space indent
         return "  " + convert_children(pre, context).replace("\n","\n  ").strip(" ")
     else: # inline in a list or a paragraph body, use <code> tags
