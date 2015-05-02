@@ -1,0 +1,3 @@
+==== Test ====
+
+convert new mediawiki URL format like git://git.code.sf.net/p/sevenzipjbind/code regardless whether the URL can be opened in browser or not
