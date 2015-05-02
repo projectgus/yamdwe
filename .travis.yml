@@ -1,2 +1,3 @@
 language: python
+install:
 script: python wikicontent_tests.py
