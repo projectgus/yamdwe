@@ -6,6 +6,7 @@ install:
   - pip install -i http://pypi.pediapress.com/simple/ mwlib
   - sudo apt-get install python-virtualenv virtualenvwrapper
   - source /etc/bash_completion
+  - pip install virtualenv
   - mkvirtualenv --system-site-packages yamdwe
 script: 
   - workon yamdwe
