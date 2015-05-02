@@ -1,0 +1,15 @@
+language: python
+sudo: required
+install:
+  - sudo apt-get install python python-mysqldb python-pip python-lxml python-requests python-dev
+  - pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
+  - pip install -i http://pypi.pediapress.com/simple/ mwlib
+  - sudo apt-get install python-virtualenv virtualenvwrapper
+  - source /etc/bash_completion
+  - pip install virtualenv
+  - sudo easy_install pip
+  - sudo pip install --upgrade virtualenvwrapper
+  - mkvirtualenv --system-site-packages yamdwe
+script: 
+  - workon yamdwe
+  - python wikicontent_tests.py
