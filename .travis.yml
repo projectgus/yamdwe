@@ -5,6 +5,7 @@ install:
   - pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
   - pip install -i http://pypi.pediapress.com/simple/ mwlib
   - sudo apt-get install python-virtualenv virtualenvwrapper
+  - source /etc/bash_completion
   - mkvirtualenv --system-site-packages yamdwe
 script: 
   - workon yamdwe
