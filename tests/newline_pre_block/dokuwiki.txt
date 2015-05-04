@@ -1,0 +1,7 @@
+====Newline pre blocks====
+
+  * some text<code>
+some code 1
+some code 2
+</code>some other text</li>
+</ul>
