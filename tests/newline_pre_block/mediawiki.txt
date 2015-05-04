@@ -1,0 +1,9 @@
+== Newline pre blocks ==
+<ul>
+<li>some text
+<pre>
+some code 1
+some code 2
+</pre>
+some other text</li>
+</ul>
