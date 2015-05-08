@@ -1,0 +1,18 @@
+language: python
+sudo: required
+install:
+  - sudo apt-get install python python-mysqldb python-pip python-lxml python-requests python-dev
+  - sudo apt-get install python-virtualenv virtualenvwrapper
+  - source /etc/bash_completion
+  - pip install virtualenv
+  - sudo easy_install pip
+  - sudo pip install --upgrade virtualenvwrapper
+  - export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python WORKON_HOME=$HOME/.virtualenvs PROJECT_HOME=$HOME/projects # avoid `ImportError: No module named virtualenvwrapper.hook_loader`
+  - source /usr/local/bin/virtualenvwrapper.sh # avoid `ImportError: No module named virtualenvwrapper.hook_loader`
+  - mkvirtualenv --system-site-packages yamdwe # part of build instructions (see REAMDE.md)
+  - pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz # part of build instructions (see REAMDE.md)
+  - pip install -i http://pypi.pediapress.com/simple/ mwlib # part of build instructions (see REAMDE.md)
+  - pip install requests # avoid `ImportError: No module named requests`
+script: 
+  - workon yamdwe # multiple invokations don't hurt
+  - python wikicontent_tests.py
