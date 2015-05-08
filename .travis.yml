@@ -8,7 +8,11 @@ install:
   - source /etc/bash_completion
   - pip install virtualenv
   - sudo easy_install pip
-  - sudo pip install --upgrade virtualenvwrapper pip
+  - sudo pip install --upgrade virtualenvwrapper
+  - export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
+  - export WORKON_HOME=$HOME/.virtualenvs
+  - export PROJECT_HOME=$HOME/projects
+  - source /usr/local/bin/virtualenvwrapper.sh
   - mkvirtualenv --system-site-packages yamdwe
 script: 
   - workon yamdwe
