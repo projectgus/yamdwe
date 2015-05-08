@@ -7,14 +7,12 @@ install:
   - pip install virtualenv
   - sudo easy_install pip
   - sudo pip install --upgrade virtualenvwrapper
-  - export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
-  - export WORKON_HOME=$HOME/.virtualenvs
-  - export PROJECT_HOME=$HOME/projects
-  - source /usr/local/bin/virtualenvwrapper.sh
-  - mkvirtualenv --system-site-packages yamdwe
-  - pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
-  - pip install -i http://pypi.pediapress.com/simple/ mwlib
-  - pip install requests
+  - export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python WORKON_HOME=$HOME/.virtualenvs PROJECT_HOME=$HOME/projects # avoid `ImportError: No module named virtualenvwrapper.hook_loader`
+  - source /usr/local/bin/virtualenvwrapper.sh # avoid `ImportError: No module named virtualenvwrapper.hook_loader`
+  - mkvirtualenv --system-site-packages yamdwe # part of build instructions (see REAMDE.md)
+  - pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz # part of build instructions (see REAMDE.md)
+  - pip install -i http://pypi.pediapress.com/simple/ mwlib # part of build instructions (see REAMDE.md)
+  - pip install requests # avoid `ImportError: No module named requests`
 script: 
   - workon yamdwe # multiple invokations don't hurt
   - python wikicontent_tests.py
