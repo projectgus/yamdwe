@@ -14,6 +14,7 @@ install:
   - mkvirtualenv --system-site-packages yamdwe
   - pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
   - pip install -i http://pypi.pediapress.com/simple/ mwlib
+  - pip install requests
 script: 
-  - workon yamdwe
+  - workon yamdwe # multiple invokations don't hurt
   - python wikicontent_tests.py
