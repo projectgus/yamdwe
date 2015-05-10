@@ -37,7 +37,7 @@ class Importer(object):
         query = {'list' : 'allpages'}
         print("Getting list of pages...")
         pages = self._query(query, [ 'allpages' ])
-        print("Query page revisions...")
+        print("Query page revisions (this may take a while)...")
         for page in pages:
             page["revisions"] = self._get_revisions(page)
         return pages
