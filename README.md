@@ -3,6 +3,8 @@
 Yamdwe is made up of two Python programs to export an existing
 Mediawiki install to a Dokuwiki install.
 
+[![Build Status](https://travis-ci.org/projectgus/yamdwe.svg?branch=travis)](https://travis-ci.org/projectgus/yamdwe)
+
 # Features
 
 * Exports and recreates full revision history of all pages, including author information for correct attribution.
