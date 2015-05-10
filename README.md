@@ -33,41 +33,29 @@ Yamdwe has now been used successfully on many wikis of various sizes. If you've 
 
 # Using yamdwe
 
-## Installing dependencies
+## Installation "the Python way"
 
-### 1. Basic dependencies
+Note: It's strongly recommended to use a [virtualenv](https://virtualenv.pypa.io/en/latest/) environment to keep yamdwe's libraries isolated from the rest of your system. yamdwe has over 20 package dependencies including some very specific versions to support mwlib. Good introductory posts about virtualenv can be found [here](http://davedash.com/tutorial/virtualenv/) and [also here](http://www.dabapps.com/blog/introduction-to-pip-and-virtualenv-python/). You may want to check out [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/), which provides handy shortcuts for common virtualenv operations.
 
-For Debian/Ubuntu Linux:
+Once the virtualenv is made and activated:
 
-    sudo apt-get install python python-mysqldb python-pip python-lxml python-requests python-dev
+    pip install -r requirements.txt
+	pip install -i http://pypi.pediapress.com/simple/ mwlib
 
-### 2. Virtualenv (optional)
+## Alternative Installation for Debian/Ubuntu Linux
 
-I suggest installing the remaining Python dependencies inside a
-[virtualenv](https://virtualenv.pypa.io/en/latest/), as mwlib in
-particular has a lot of specific dependencies.
+Installing everything via pip as shown above means compiling some
+common packages from source. Here's an alternative set of commands to
+set up a virtualenv on Debian/Ubuntu, but with some common packages
+installed into the main system:
 
-Some of the mwlib dependencies may be available as system Python
-packages, but they may have older/incompatible versions. Sandboxing
-these packages into a "virtualenv" avoids these version conflicts.
+    sudo apt-get install python-mysqldb python-pip python-lxml python-requests python-dev python-virtualenv
+    virtualenv --system-site-packages -p python2.7 env
+	source env/bin/activate
+	pip install simplemediawiki==1.2.0b2
+	pip install -i http://pypi.pediapress.com/simple/ mwlib
 
-Virtualenv & virtualenvwrapper for Debian/Ubuntu:
-
-    sudo apt-get install python-virtualenv virtualenvwrapper
-    source /etc/bash_completion
-    mkvirtualenv --system-site-packages yamdwe
-
-(Next time you log in the [virtualenvwrapper aliases](http://virtualenvwrapper.readthedocs.org/en/latest/command_ref.html) will be
-automatically added to your environment, and you can use `workon yamdwe` to
-enable the yamdwe virtualenv.)
-
-### 3. Pip dependencies
-
-Make sure to run these inside the virtualenv (ie run `workon yamdwe`
-first), if you're using a virtulaenv.
-
-    pip install http://pypi.python.org/packages/source/s/simplemediawiki/simplemediawiki-1.2.0b2.tar.gz
-    pip install -i http://pypi.pediapress.com/simple/ mwlib
+(Once done working with yamdwe, run `deactivate` to leave the virtualenv, `source env/bin/activate` again to re-enter it).
 
 ## Set up Dokuwiki
 
