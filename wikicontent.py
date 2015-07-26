@@ -65,7 +65,12 @@ def convert_pagecontent(title, content):
     context = {}
     context["list_stack"] = []
     context["nowiki_plaintext"] = nowiki_plaintext # hacky way of attaching to child nodes
-    return convert(root, context, False)
+    result = convert(root, context, False)
+
+    # mwlib doesn't parse NOTOC, so check for it manually
+    if re.match(r"^\s*__NOTOC__\s*$", content, re.MULTILINE):
+        result = "~~NOTOC~~"+("\n" if not result.startswith("\n") else "")+result
+    return result
 
 def convert_children(node, context):
     """Walk the children of this parse node and call convert() on each.
@@ -90,6 +95,8 @@ def convert(node, context, trailing_newline):
 
 @visitor.when(Text)
 def convert(text, context, trailing_newline):
+    if text._text is None:
+        return ""
     m = re.match(r"<__yamdwe_nowiki>([0-9]+)</__yamdwe_nowiki>", text._text)
     if m is not None: # nowiki content!
         index = int(m.group(1))

@@ -1,0 +1,3 @@
+__NOTOC__
+=Heading=
+Based on issue seen in https://github.com/projectgus/yamdwe/issues/30
