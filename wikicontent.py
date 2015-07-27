@@ -128,7 +128,9 @@ def convert(style, context, trailing_newline):
         ":"   : ("", ""),           # other end of a definition???
         "sub" : ("<sub>","</sub>"),
         "sup" : ("<sup>","</sup>"),
-        "big" : ("**", "**"),        # <big> not in dokuwiki so use bold
+        "big" : ("**", "**"),       # <big> not in dokuwiki so use bold
+        "-" : ("<blockquote>", "</blockquote>"), # use dokuwikis Blockquote Plugin for this
+        "u" : ("", "")              # <br> already handled in TagNode @visitor
         }.get(style.caption, None)
     if formatter is None:
         print("WARNING: Ignoring unknown formatter %s" % style.caption)
