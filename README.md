@@ -81,6 +81,15 @@ Yamdwe may warn you at the end that it is unable to set [correct permissions for
 
 Inevitably some content will not import cleanly, so a manual check/edit/cleanup pass is almost certainly necessary.
 
+## Dokuwiki Plugin Features
+
+Yamdwe supports some features in Mediawiki that aren't supported by a base Dokuwiki installaton. To display these elements Dokuwiki plugins are required:
+
+* `<blockquote>` tags in Mediawiki can use the [blockquote plugin](https://www.dokuwiki.org/plugin:blockquote) in Dokuwiki.
+* `<math>` tags in Mediawiki can use the [MathJax plugin](https://www.dokuwiki.org/plugin:mathjax) (or similar) in Dokuwiki.
+
+You only need the plugins for any features that you are using in your Mediawiki and want to keep using as-is.
+
 ## Exporting users
 
 This step is optional, but it's nice as it matches the user names in the imported revision history with actual users in dokuwiki.
