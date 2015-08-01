@@ -260,6 +260,19 @@ def convert(tag, context, trailing_newline):
 
     return convert_children(tag, context)
 
+@visitor.when(Math)
+def convert(node, context, trailing_newline):
+    """
+    Convert <math></math> tags for rendering of math terms
+    there are a couple of extension to support this in dokuwiki
+    tested successfully with MathJax plugin
+    """
+    if "\n" in node.math:
+        # multiple lines are a formula block
+        return "$$" + node.math + "$$"
+    # anything else is inline term
+    return "$" + node.math + "$"
+
 # catchall for Node, which is the parent class of everything above
 @visitor.when(Node)
 def convert(node, context, trailing_newline):

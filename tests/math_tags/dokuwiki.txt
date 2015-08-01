@@ -1,0 +1,9 @@
+The squared distance from a point on ellipse to a given point$(x,y)$ is:
+
+$$
+\begin{array}{rcl}
+s^{2}&=&(x-a\cos t)^{2}+(y-b\sin t)^{2}\\
+&=&x^{2}+y^{2}+a^{2}\cos^{2}t+b^{2}\sin^{2}t-2xa\cos t-2yb\sin t
+\end{array}
+$$
+
