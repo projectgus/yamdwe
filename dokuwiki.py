@@ -77,7 +77,7 @@ class Exporter(object):
     def _convert_page(self, page):
         """ Convert the supplied mediawiki page to a Dokuwiki page """
         print("Converting %d revisions of page '%s'..." %
-              (len(page["revisions"]), page['title'].encode("utf-8"))
+              (len(page["revisions"]), page['title'].encode("utf-8")))
         # Sanitise the mediawiki pagename to something matching the dokuwiki pagename convention
         full_title = make_dokuwiki_pagename(page['title'])
 
