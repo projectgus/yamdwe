@@ -49,14 +49,14 @@ class Exporter(object):
         Images are all written to the file_namespace specified (file: by default), to match mediawiki.
         """
         auth=None if http_user is None else HTTPBasicAuth(http_user, http_pass)
-        file_namespace = file_namespace.lower()
+        file_namespace = file_namespace.lower().encode("utf-8")
         filedir = os.path.join(self.data, "media", file_namespace)
         ensure_directory_exists(filedir)
         filemeta = os.path.join(self.data, "media_meta", file_namespace)
         ensure_directory_exists(filemeta)
         for image in images:
             # download the image from the Mediawiki server
-            print("Downloading %s..." % image['name'])
+            print("Downloading %s..." % image['name'].encode("utf-8"))
             r = requests.get(image['url'], auth=auth)
             # write the actual image out to the data/file directory
             name = make_dokuwiki_pagename(image['name'])
@@ -77,7 +77,7 @@ class Exporter(object):
     def _convert_page(self, page):
         """ Convert the supplied mediawiki page to a Dokuwiki page """
         print("Converting %d revisions of page '%s'..." %
-              (len(page["revisions"]), page['title']))
+              (len(page["revisions"]), page['title'].encode("utf-8"))
         # Sanitise the mediawiki pagename to something matching the dokuwiki pagename convention
         full_title = make_dokuwiki_pagename(page['title'])
 
