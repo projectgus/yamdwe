@@ -103,7 +103,6 @@ def _readfile(dirpath, filename):
         return u""
 
 if __name__ == "__main__":
-    yamdwe.enable_unicode_output()
     try:
         if sys.argv[1] in ["-h", "--help"]:
             print("Usage: %s <optional test name>" % (sys.argv[0]))
