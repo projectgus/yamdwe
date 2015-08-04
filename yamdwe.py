@@ -12,7 +12,7 @@ Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import argparse, sys, codecs, getpass, datetime
+import argparse, sys, codecs, locale, getpass, datetime
 from pprint import pprint
 import mediawiki, dokuwiki, wikicontent
 
@@ -20,7 +20,8 @@ def main():
     # the wikicontent code (that uses visitor module) tends to recurse quite deeply for complex pages
     sys.setrecursionlimit(20000)
 
-    enable_unicode_output()
+    # try not to crash if the output/console has a character we can't encode
+    sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout, "replace")
 
     args = arguments.parse_args()
 
@@ -72,11 +73,6 @@ def main():
     exporter.invalidate_cache()
 
     print("Done.")
-
-def enable_unicode_output():
-    """ We output a lot of Unicode strings, so set Unicode output to console/file if its not already set """
-    if sys.stdout.encoding in [ None, "ascii" ]:
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 # Parser for command line arguments
 arguments = argparse.ArgumentParser(description='Convert a Mediawiki installation to a Dokuwiki installation.')
