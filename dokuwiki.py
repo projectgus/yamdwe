@@ -7,7 +7,7 @@ Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import os, os.path, gzip, shutil, re, requests, calendar, codecs
+import os, os.path, gzip, shutil, re, requests, calendar, codecs, sys
 from requests.auth import HTTPBasicAuth
 import wikicontent
 import simplemediawiki
@@ -192,7 +192,9 @@ def make_dokuwiki_pagename(mediawiki_name):
     Any namespacing that is in the form of a / is replaced with a :
     """
     result = mediawiki_name.replace(" ","_")
-    return names.clean_id(camel_to_underscore(result)).replace("/",":")
+    result = names.clean_id(camel_to_underscore(result)).replace("/",":")
+    result = codecs.encode(result, sys.getfilesystemencoding(), "replace")
+    return result
 
 def make_dokuwiki_heading_id(mw_heading_name):
     """
