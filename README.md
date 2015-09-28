@@ -5,6 +5,8 @@ Mediawiki install to a Dokuwiki install.
 
 [![Build Status](https://travis-ci.org/projectgus/yamdwe.svg?branch=master)](https://travis-ci.org/projectgus/yamdwe)
 
+**yamde needs a new maintainer** - I've gotten busy with other responsibilities and I'm not giving yamdwe the attention it deserves. It's mostly mature software, the only issue is occasionally content in some wikis that doesn't convert properly. Yamdwe has automated tests and continuous integration so it's not too painful to add bugfixes, the usual slow point is investigating behaviour of mediawiki installs that aren't publically available. If you're interested in helping out then please get in touch, or just browse the [Issues](https://github.com/projectgus/yamdwe/issues) list and maybe send some PRs! Any active maintainer will be gladly credited and/or I'll transfer the repo to you if you'd like that. *-- Angus*
+
 # Features
 
 * Exports and recreates full revision history of all pages, including author information for correct attribution.
