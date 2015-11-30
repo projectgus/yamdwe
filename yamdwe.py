@@ -35,6 +35,9 @@ def main():
     if args.wiki_user is not None and args.wiki_pass is None:
         args.wiki_pass = getpass.getpass("Enter password for Wiki login (%s):" % args.wiki_user)
 
+    if not args.mediawiki.endswith("api.php"):
+        print("WARNING: Mediawiki URL does not end in 'api.php'... This has to be the URL of the Mediawiki API, not just the wiki. If you can't export anything, try adding '/api.php' to the wiki URL.")
+
     importer = mediawiki.Importer(args.mediawiki, args.http_user, args.http_pass, args.wiki_user, args.wiki_pass)
     exporter = dokuwiki.Exporter(args.dokuwiki)
 

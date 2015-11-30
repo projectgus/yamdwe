@@ -6,7 +6,7 @@ Copyright (C) 2014 Angus Gratton
 Licensed under New BSD License as described in the file LICENSE.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import simplemediawiki
+import simplemediawiki, simplejson
 import re
 from pprint import pprint
 
@@ -78,7 +78,12 @@ class Importer(object):
         result = []
         continuations = 0
         while True:
-            response = self.mw.call(query)
+            try:
+                response = self.mw.call(query)
+            except simplejson.scanner.JSONDecodeError as e:
+                if e.pos == 0:
+                    raise RuntimeError("Mediawiki returned a non-JSON response. Are you giving yamdwe the correct URL for the Mediawiki API? (It usually ends in api.php)")
+                raise
 
             # fish around in the response for our actual data (location depends on query)
             try:
