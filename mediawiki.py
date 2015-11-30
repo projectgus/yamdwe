@@ -11,7 +11,8 @@ import re
 from pprint import pprint
 
 class Importer(object):
-    def __init__(self, api_url, http_user=None, http_pass="", wiki_user=None, wiki_pass=""):
+    def __init__(self, api_url, http_user=None, http_pass="", wiki_user=None, wiki_pass="", verbose=False):
+        self.verbose = verbose
         self.mw = simplemediawiki.MediaWiki(api_url,http_user=http_user,http_password=http_pass)
         # login if necessary
         if wiki_user is not None:
@@ -29,6 +30,10 @@ class Importer(object):
         except IndexError:
             raise RuntimeError("Failed to read Mediawiki siteinfo/generator. Is version older than 1.8? Yamdwe requires 1.13 or greater.")
 
+    def verbose_print(self, msg):
+        if self.verbose:
+            print(msg)
+
     def get_all_pages(self):
         """
         Slurp all pages down from the mediawiki instance, together with all revisions including content.
@@ -37,9 +42,12 @@ class Importer(object):
         query = {'list' : 'allpages'}
         print("Getting list of pages...")
         pages = self._query(query, [ 'allpages' ])
+        self.verbose_print("Got %d pages." % len(pages))
         print("Query page revisions (this may take a while)...")
         for page in pages:
+            self.verbose_print("Querying revisions for pageid %s (%s)..." % (page['pageid'], page['title']))
             page["revisions"] = self._get_revisions(page)
+            self.verbose_print("Got %d revisions." % len(page["revisions"]))
         return pages
 
     def _get_revisions(self, page):
@@ -82,7 +90,10 @@ class Importer(object):
                 response = self.mw.call(query)
             except simplejson.scanner.JSONDecodeError as e:
                 if e.pos == 0:
-                    raise RuntimeError("Mediawiki returned a non-JSON response. Are you giving yamdwe the correct URL for the Mediawiki API? (It usually ends in api.php)")
+                    if not self.verbose:
+                      raise RuntimeError("Mediawiki gave us back a non-JSON response. You may need to double-check the Mediawiki API URL you are providing (it usually ends in api.php), and also your Mediawiki permissions. To see the response content, pass the --verbose flag to yamdwe.")
+                    else:
+                      raise RuntimeError("Mediawiki gave us back a non-JSON response:\n\n\nInvalid response follows (%d bytes):\n%s\n\n(End of content)\nFailed to parse. You may need to double-check the Mediawiki API URL you are providing (it usually ends in api.php), and also your Mediawiki permissions." % (len(e.doc), e.doc.decode("utf-8")))
                 raise
 
             # fish around in the response for our actual data (location depends on query)

@@ -38,7 +38,7 @@ def main():
     if not args.mediawiki.endswith("api.php"):
         print("WARNING: Mediawiki URL does not end in 'api.php'... This has to be the URL of the Mediawiki API, not just the wiki. If you can't export anything, try adding '/api.php' to the wiki URL.")
 
-    importer = mediawiki.Importer(args.mediawiki, args.http_user, args.http_pass, args.wiki_user, args.wiki_pass)
+    importer = mediawiki.Importer(args.mediawiki, args.http_user, args.http_pass, args.wiki_user, args.wiki_pass, args.verbose)
     exporter = dokuwiki.Exporter(args.dokuwiki)
 
     # Set the wikicontent's definition of File: and Image: prefixes (varies by language settings)
@@ -84,6 +84,7 @@ arguments.add_argument('--http_user', help="Username for HTTP basic auth")
 arguments.add_argument('--http_pass', help="Password for HTTP basic auth (if --http_user is specified but not --http_pass, yamdwe will prompt for a password)")
 arguments.add_argument('--wiki_user', help="Mediawiki login username")
 arguments.add_argument('--wiki_pass', help="Mediawiki login password (if --wiki_user is specified but not --wiki_pass, yamdwe will prompt for a password)")
+arguments.add_argument('-v', '--verbose',help="Print verbose progress and error messages", action="store_true")
 arguments.add_argument('mediawiki', metavar='MEDIAWIKI_API_URL', help="URL of mediawiki's api.php file (something like http://mysite/wiki/api.php)")
 arguments.add_argument('dokuwiki', metavar='DOKUWIKI_ROOT', help="Root path to an existing dokuwiki installation to add the Mediawiki pages to (can be a brand new install.)")
 
