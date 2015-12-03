@@ -142,9 +142,9 @@ def convert(url, context, trailing_newline):
     text = convert_children(url, context).strip(" ")
     url = url.caption
     if len(text):
-        return "[[%s|%s]]" % (url, text)
+        return u"[[%s|%s]]" % (url, text)
     else:
-        return "%s" % (url)
+        return u"%s" % (url)
 
 @visitor.when(URL)
 def convert(url, context, trailing_newline):
@@ -175,9 +175,9 @@ def convert(link, context, trailing_newline):
     text = convert_children(link, context).strip(" ")
     pagename = convert_internal_link(link.target)
     if len(text):
-        return "[[%s|%s]]" % (pagename, text)
+        return u"[[%s|%s]]" % (pagename, text)
     else:
-        return "[[%s]]" % pagename
+        return u"[[%s]]" % pagename
 
 @visitor.when(CategoryLink)
 def convert(link, context, trailing_newline):
@@ -190,9 +190,9 @@ def convert(link, context, trailing_newline):
         filename = dokuwiki.make_dokuwiki_pagename(canonicalise_file_namespace(link.target))
         caption = convert_children(link, context).strip()
         if len(caption) > 0:
-            return "{{%s%s}}" % (filename, caption)
+            return u"{{%s%s}}" % (filename, caption)
         else:
-            return "{{%s}}" % filename
+            return u"{{%s}}" % filename
 
     print("WARNING: Ignoring namespace link to " + link.target)
     return convert_children(link, context)
@@ -219,7 +219,7 @@ def convert(table, context, trailing_newline):
 @visitor.when(Cell)
 def convert(cell, context, trailing_newline):
     marker = "^" if cell.tagname == "th" else "|"
-    result = "%s %s" % (marker, convert_children(cell, context).replace('\n','').strip())
+    result = u"%s %s" % (marker, convert_children(cell, context).replace('\n','').strip())
     return result
 
 @visitor.when(Row)
