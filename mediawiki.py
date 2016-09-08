@@ -11,9 +11,9 @@ import re
 from pprint import pprint
 
 class Importer(object):
-    def __init__(self, api_url, http_user=None, http_pass="", wiki_user=None, wiki_pass="", wiki_domain="", verbose=False):
+    def __init__(self, api_url, http_user=None, http_pass="", wiki_user=None, wiki_pass="", verbose=False):
         self.verbose = verbose
-        self.mw = simplemediawiki.MediaWiki(api_url, http_user=http_user, http_password=http_pass, domain=wiki_domain)
+        self.mw = simplemediawiki.MediaWiki(api_url,http_user=http_user,http_password=http_pass)
         # login if necessary
         if wiki_user is not None:
             print("Logging in as %s..." % wiki_user)
