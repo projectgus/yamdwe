@@ -51,6 +51,7 @@ def main():
 
     # Add a shameless "exported by yamdwe" note to the front page of the wiki - really shameless, but I'll keep it
     mainpage = importer.get_main_pagetitle()
+
     for page in pages:
         if page["title"] == mainpage:
             latest = dict(page["revisions"][0])
@@ -84,7 +85,7 @@ arguments.add_argument('--http_user', help="Username for HTTP basic auth")
 arguments.add_argument('--http_pass', help="Password for HTTP basic auth (if --http_user is specified but not --http_pass, yamdwe will prompt for a password)")
 arguments.add_argument('--wiki_user', help="Mediawiki login username")
 arguments.add_argument('--wiki_pass', help="Mediawiki login password (if --wiki_user is specified but not --wiki_pass, yamdwe will prompt for a password)")
-arguments.add_argument('--wiki_domain', help="Mediawiki login domain")
+arguments.add_argument('--wiki_domain', help="Mediawiki login domain (needs a non-standard simplemediawiki library )")
 arguments.add_argument('-v', '--verbose',help="Print verbose progress and error messages", action="store_true")
 arguments.add_argument('mediawiki', metavar='MEDIAWIKI_API_URL', help="URL of mediawiki's api.php file (something like http://mysite/wiki/api.php)")
 arguments.add_argument('dokuwiki', metavar='DOKUWIKI_ROOT', help="Root path to an existing dokuwiki installation to add the Mediawiki pages to (can be a brand new install.)")
