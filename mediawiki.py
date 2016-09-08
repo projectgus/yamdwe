@@ -34,14 +34,30 @@ class Importer(object):
         if self.verbose:
             print(msg)
 
-    def get_all_pages(self):
+    def get_all_pages(self, limit=500, more=True):
+        # the mediawiki api right now limits the pulled pages to 10
+        # the maximum allowed is 500
+        # after the first pages are pulled there is no check if there are additional pages to load
+        # if more is set one additional pull is done that resumes at the last pulled entry
+        # and it stops if the last page is the last page ;)
         """
         Slurp all pages down from the mediawiki instance, together with all revisions including content.
         WARNING: Hits API hard, don't do this without knowledge/permission of wiki operator!!
         """
-        query = {'list' : 'allpages'}
-        print("Getting list of pages...")
+        count=1
+        newest=0
+        query = {'list' : 'allpages', 'aplimit':limit}
+        print("Getting list of pages 0-%i..." % limit)
         pages = self._query(query, [ 'allpages' ])
+
+        while newest != pages[-1]['pageid'] and more:
+            print("Getting list of pages %i-%i..." % (count * limit, (count + 1) * limit))
+            newest = pages[-1]['pageid']
+            query = {'list': 'allpages', 'aplimit': 500, 'apfrom': pages[-1]['title']}
+            pages += self._query(query, ['allpages'])
+#            print("Newest is %s and the ''newest'' is %s" % (newest, pages[-1]['pageid']))
+            count += 1
+
         self.verbose_print("Got %d pages." % len(pages))
         print("Query page revisions (this may take a while)...")
         for page in pages:
