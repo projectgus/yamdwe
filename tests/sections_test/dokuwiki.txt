@@ -1,16 +1,13 @@
-====== Heading ======
+====== Section ======
 
 
-===== Section =====
+===== Subsection =====
 
 
-==== Subsection ====
+==== Sub-subsection ====
 
 
-=== Sub-subsection ===
-
-
-== Sub-Sub-subsection ==
+=== Sub-Sub-subsection ===
 
 
 == Sub-Sub-Sub-subsection ==

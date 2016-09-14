@@ -1,4 +1,3 @@
-= Heading =
 == Section ==
 === Subsection ===
 ==== Sub-subsection ====
