@@ -112,7 +112,7 @@ def convert(section, context, trailing_newline):
     elif section.tagname == "@section":
         level = section.level
         heading = convert(section.children.pop(0), context, trailing_newline).strip()
-        heading_boundary = "="*(6-level)
+        heading_boundary = "="*(8-level)
         result = "\n%s %s %s\n" % (heading_boundary, heading, heading_boundary)
     else:
         print("Unknown tagname %s" % section.tagname)
