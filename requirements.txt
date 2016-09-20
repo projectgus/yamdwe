@@ -1,6 +1,5 @@
-# Note: mwlib is missing from this list as it's
-# external and unverified, can install with
-# pip install -i http://pypi.pediapress.com/simple/ mwlib
+setuptools
+mwlib==0.15.14
 MySQL-python==1.2.5
 Pillow==2.8.1
 apipkg==1.4
