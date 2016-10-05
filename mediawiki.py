@@ -108,7 +108,7 @@ class Importer(object):
             # if there's a warning print it out (shouldn't need a debug flag since this is of interest to any user)
             if 'warnings' in response:
                 for warnkey in response['warnings']:
-                    print("WARNING: %s function throws the warning %s" % warnkey, response['warnings'][warnkey]['*']))
+                    print("WARNING: %s function throws the warning %s" % (warnkey, response['warnings'][warnkey]['*']))
 
             # if there's a continuation, find the new arguments and follow them
             try:
