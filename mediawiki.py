@@ -145,7 +145,3 @@ class Importer(object):
         query = { 'action' : 'query', 'meta' : 'siteinfo', 'siprop' : 'general' }
         result = self.mw.call(query)['query']
         return result['general'].get("mainpage", "Main")
-
-
-
-
