@@ -81,7 +81,7 @@ class Importer(object):
         Make a Mediawiki API query that results a list of results,
         handle the possibility of making a paginated query using query-continue
         """
-        query = { 'action' : 'query' }
+        query = { 'action' : 'query', 'rawcontinue':'' }
         query.update(args)
         result = []
         continuations = 0
