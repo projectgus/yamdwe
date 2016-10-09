@@ -26,6 +26,9 @@ class Importer(object):
             version = [ int(x) for x in re.search(r'[0-9.]+', generator).group(0).split(".") ] # list of [ 1, 19, 1 ] or similar
             if version[0] == 1 and version[1] < 13:
                 raise RuntimeError("Mediawiki version is too old. Yamdwe requires 1.13 or newer. This install is %s" % generator)
+            # check if the version is too old for the 'rawcontinue' parameter
+            # see https://www.mediawiki.org/wiki/API:Query#Backwards_compatibility_of_continue
+            self.need_rawcontinue = version[0] > 1 or (version[0] == 1 and version[1] >= 24)
             print("%s meets version requirements." % generator)
         except IndexError:
             raise RuntimeError("Failed to read Mediawiki siteinfo/generator. Is version older than 1.8? Yamdwe requires 1.13 or greater.")
@@ -82,6 +85,8 @@ class Importer(object):
         handle the possibility of making a paginated query using query-continue
         """
         query = { 'action' : 'query' }
+        if self.need_rawcontinue:
+            query["rawcontinue"] = ""
         query.update(args)
         result = []
         continuations = 0
