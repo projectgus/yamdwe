@@ -44,7 +44,6 @@ Note: It's strongly recommended to use a [virtualenv](https://virtualenv.pypa.io
 Once the virtualenv is made and activated:
 
     pip install -r requirements.txt
-	pip install -i http://pypi.pediapress.com/simple/ mwlib
 
 ## Alternative Installation for Debian/Ubuntu Linux
 
