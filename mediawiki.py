@@ -22,6 +22,7 @@ class Importer(object):
 
         # version check
         try:
+            self.need_rawcontinue = False
             generator = "".join(self._query({'meta' : 'siteinfo'}, ['general', 'generator']))
             version = [ int(x) for x in re.search(r'[0-9.]+', generator).group(0).split(".") ] # list of [ 1, 19, 1 ] or similar
             if version[0] == 1 and version[1] < 13:
