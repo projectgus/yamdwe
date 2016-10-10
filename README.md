@@ -77,6 +77,10 @@ To start an export, you will need the URL of the mediawiki API (usually http://m
 
 If you need to log in to to your Mediawiki install (either with a Mediawiki username and if you are in a domain with the domain-name, or via HTTP Basic Auth) then run `yamdwe.py -h` to view the command line options for authentication.
 
+Domain functionality is added through the "develop" branch of this [simplemediawiki fork](https://github.com/BlackLotus/python-simplemediawiki/tree/develop) and can be used through.
+
+    yamdwe.py --wiki_domain WIKI_DOMAIN MEDIAWIKI_API_URL DOKUWIKI_ROOT_PATH
+
 If installation goes well it should print the names of pages and images as it is exporting, and finally print "Done". This process can be slow, and can load up the Mediawiki server for large wikis.
 
 Yamdwe may warn you at the end that it is unable to set [correct permissions for the Dokuwiki data directories and files](https://www.dokuwiki.org/install:permissions) - regardless, you should check and correct these manually.
