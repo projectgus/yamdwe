@@ -15,7 +15,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import argparse, sys, codecs, locale, getpass, datetime
 from pprint import pprint
 import mediawiki, dokuwiki, wikicontent
-import inspect
+# only needed to check for domain functionality
+import simplemediawiki, inspect
 
 def main():
     # the wikicontent code (that uses visitor module) tends to recurse quite deeply for complex pages
