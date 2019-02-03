@@ -60,6 +60,16 @@ installed into the main system:
 
 (Once done working with yamdwe, run `deactivate` to leave the virtualenv, `source env/bin/activate` again to re-enter it).
 
+If the installation of mwlib fails install the packages recommended for mwlib https://mwlib.readthedocs.io/en/latest/installation.html#ubuntu-install
+
+	sudo apt-get install -y gcc g++ make python python-dev python-virtualenv   \
+ 	 libjpeg-dev libz-dev libfreetype6-dev liblcms-dev                   \
+ 	 libxml2-dev libxslt-dev                                             \
+ 	 ocaml-nox git-core                                                  \
+ 	 python-imaging python-lxml                                          \
+  	 texlive-latex-recommended ploticus dvipng imagemagick               \
+ 	 pdftk
+
 ## Set up Dokuwiki
 
 If you're creating a new DokuWiki then set up your
