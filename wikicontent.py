@@ -273,6 +273,19 @@ def convert(node, context, trailing_newline):
     # anything else is inline term
     return "$" + node.math + "$"
 
+
+@visitor.when(Caption)
+def convert(node, context, trailing_newline):
+	"""
+	Convert table captions to level 5 headings.
+	
+	Because we ignore the <table> tags when converting to dokuwiki,
+	we can get away with simply converting to a heading without
+	worrying about it being inside <table> (which <caption> should be)
+	in the rendered HTML.
+	"""
+	return "== %s ==" % convert_children(node, context)
+
 # catchall for Node, which is the parent class of everything above
 @visitor.when(Node)
 def convert(node, context, trailing_newline):
