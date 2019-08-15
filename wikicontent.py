@@ -131,8 +131,7 @@ def convert(style, context, trailing_newline):
         "big" : ("**", "**"),       # <big> not in dokuwiki so use bold
         "-" : ("<blockquote>", "</blockquote>"), # use dokuwikis Blockquote Plugin for this
         "u" : ("", ""),              # <br> already handled in TagNode @visitor
-        "del": ("<del>", "</del>"),
-        "s" : ("<del>", "</del>")   # According to the mediawiki docs <s>..</s> is synonymous with <del>...</del> (the 2nd form is the same in dokuwiki)
+        "s" : ("<del>", "</del>")   # According to the mediawiki docs <s>..</s> is synonymous with <del>...</del> (although one is treates as a tag and one a style in the parser??)
         }.get(style.caption, None)
     if formatter is None:
         print("WARNING: Ignoring unknown formatter %s" % style.caption)
@@ -243,6 +242,7 @@ def convert(tag, context, trailing_newline):
         "tt" : ("''", "''"),
         "ref" : ("((","))"), # references converted to footnotes
         "code" : ("<code>","</code>"),
+        "del": ("<del>", "</del>"),
     }
     if tag.tagname in simple_tagitems:
         pre,post = simple_tagitems[tag.tagname]
