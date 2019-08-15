@@ -131,6 +131,7 @@ def convert(style, context, trailing_newline):
         "big" : ("**", "**"),       # <big> not in dokuwiki so use bold
         "-" : ("<blockquote>", "</blockquote>"), # use dokuwikis Blockquote Plugin for this
         "u" : ("", ""),              # <br> already handled in TagNode @visitor
+        "del": ("<del>", "</del>"),
         "s" : ("<del>", "</del>")   # According to the mediawiki docs <s>..</s> is synonymous with <del>...</del> (the 2nd form is the same in dokuwiki)
         }.get(style.caption, None)
     if formatter is None:
