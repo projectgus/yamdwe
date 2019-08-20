@@ -52,7 +52,7 @@ class Exporter(object):
         file_namespace = file_namespace.lower()
         for image in images:
             # download the image from the Mediawiki server
-            print("Downloading %s..." % image['name'])
+            print("Downloading %s... (%s)" % (image['name'], image['url']))
             r = requests.get(image['url'], auth=auth)
             # write the actual image out to the data/file directory
             name = make_dokuwiki_pagename(image['name'])
@@ -196,7 +196,14 @@ def make_dokuwiki_pagename(mediawiki_name):
     Any namespacing that is in the form of a / is replaced with a :
     """
     result = mediawiki_name.replace(" ","_")
+    # We have pages that have ':' in them - replace with underscores
+    result = result.replace(':', '_')
     result = names.clean_id(camel_to_underscore(result)).replace("/",":")
+    # Some of our mediawiki page names begin with a '/', which results in os.path.join assuming the page is an absolute path.
+    if result[0] == ':':
+      result = result.lstrip(':')
+    # Fix any pages that began with a space, because that breaks dokuwiki
+    result = result.replace(":_", ":")
     # Add custom namespace
     result = "old_wiki:" + result
     result = codecs.encode(result, sys.getfilesystemencoding(), "replace")
