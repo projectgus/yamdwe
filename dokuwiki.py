@@ -192,7 +192,14 @@ def make_dokuwiki_pagename(mediawiki_name):
     Any namespacing that is in the form of a / is replaced with a :
     """
     result = mediawiki_name.replace(" ","_")
+    # We have pages that have ':' in them - replace with underscores
+    result = result.replace(':', '_')
     result = names.clean_id(camel_to_underscore(result)).replace("/",":")
+    # Some of our mediawiki page names begin with a '/', which results in os.path.join assuming the page is an absolute path.
+    if result[0] == ':':
+      result = result.lstrip(':')
+    # Fix any pages that began with a space, because that breaks dokuwiki
+    result = result.replace(":_", ":")
     result = codecs.encode(result, sys.getfilesystemencoding(), "replace")
     return result
 
