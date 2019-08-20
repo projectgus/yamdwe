@@ -1,0 +1,6 @@
+Taken from the MediaWiki examples at https://www.mediawiki.org/wiki/Help:Tables
+
+** Food complements **
+| Orange| Apple |
+| Bread| Pie |
+| Butter| Ice cream |
