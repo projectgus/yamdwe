@@ -56,7 +56,7 @@ class Exporter(object):
         ensure_directory_exists(filemeta)
         for image in images:
             # download the image from the Mediawiki server
-            print("Downloading %s..." % image['name'])
+            print("Downloading %s... (%s)" % (image['name'], image['url']))
             r = requests.get(image['url'], auth=auth)
             # write the actual image out to the data/file directory
             name = make_dokuwiki_pagename(image['name'])
