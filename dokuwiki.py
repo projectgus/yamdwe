@@ -50,16 +50,20 @@ class Exporter(object):
         """
         auth=None if http_user is None else HTTPBasicAuth(http_user, http_pass)
         file_namespace = file_namespace.lower()
-        filedir = os.path.join(self.data, "media", file_namespace)
-        ensure_directory_exists(filedir)
-        filemeta = os.path.join(self.data, "media_meta", file_namespace)
-        ensure_directory_exists(filemeta)
         for image in images:
             # download the image from the Mediawiki server
             print("Downloading %s..." % image['name'])
             r = requests.get(image['url'], auth=auth)
             # write the actual image out to the data/file directory
             name = make_dokuwiki_pagename(image['name'])
+            if ':' in name:
+                this_file_namespace, name = name.split(':')
+            else:
+                this_file_namespace = file_namespace
+            filedir = os.path.join(self.data, "media", this_file_namespace)
+            ensure_directory_exists(filedir)
+            filemeta = os.path.join(self.data, "media_meta", this_file_namespace)
+            ensure_directory_exists(filemeta)
             imagepath = os.path.join(filedir, name)
             with open(imagepath, "wb") as f:
                 f.write(r.content)
@@ -69,7 +73,7 @@ class Exporter(object):
             # write a .changes file out to the media_meta/file directory
             changepath = os.path.join(filemeta, "%s.changes" % name)
             with codecs.open(changepath, "w", "utf-8") as f:
-                fields = (str(timestamp), "::1", "C", u"%s:%s"%(file_namespace,name), "", "created")
+                fields = (str(timestamp), "::1", "C", u"%s:%s"%(this_file_namespace,name), "", "created")
                 f.write(u"\t".join(fields) + "\r\n")
         # aggregate all the new changes to the media_meta/_media.changes file
         self._aggregate_changes(os.path.join(self.data, "media_meta"), "_media.changes")
@@ -193,6 +197,8 @@ def make_dokuwiki_pagename(mediawiki_name):
     """
     result = mediawiki_name.replace(" ","_")
     result = names.clean_id(camel_to_underscore(result)).replace("/",":")
+    # Add custom namespace
+    result = "old_wiki:" + result
     result = codecs.encode(result, sys.getfilesystemencoding(), "replace")
     return result
 
