@@ -1,0 +1,6 @@
+<del>del should be fine on a plain paragraph.</del>
+
+<del>As should s, but converted to del.</del>
+
+Within pragraphs <del>del tags should come through unchanged</del>, <del>However the MediaWiki specific s tags should be converted to del</del>.
+
