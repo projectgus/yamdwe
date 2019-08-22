@@ -275,6 +275,19 @@ def convert(node, context, trailing_newline):
     # anything else is inline term
     return "$" + node.math + "$"
 
+
+@visitor.when(Caption)
+def convert(node, context, trailing_newline):
+	"""
+	Convert table captions to bold paragraph preceeding the table.
+	
+	Because we ignore the <table> tags when converting to dokuwiki,
+	we can get away with simply converting to bold text without
+	worrying about it being inside <table> (which <caption> should be)
+	in the rendered HTML.
+	"""
+	return "** %s **\n" % convert_children(node, context)
+
 # catchall for Node, which is the parent class of everything above
 @visitor.when(Node)
 def convert(node, context, trailing_newline):
