@@ -194,7 +194,11 @@ def make_dokuwiki_pagename(mediawiki_name):
     result = mediawiki_name.replace(" ","_")
     # We have pages that have ':' in them - replace with underscores
     result = result.replace(':', '_')
-    result = names.clean_id(camel_to_underscore(result)).replace("/",":")
+    # Inconsistent use to camel case and/or all lower means allowing
+    # converstion to camelcase breaks our wiki.
+    #result = names.clean_id(camel_to_underscore(result)).replace("/",":")
+    # Just convert everything to lowercase instead.  It's safer.
+    result = names.clean_id(result.lower()).replace("/",":")
     # Some of our mediawiki page names begin with a '/', which results in os.path.join assuming the page is an absolute path.
     if result[0] == ':':
       result = result.lstrip(':')
