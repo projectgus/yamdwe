@@ -45,6 +45,10 @@ Once the virtualenv is made and activated:
 
     pip install -r requirements.txt
 
+If exporting users is also required, install MySQL-python:
+
+    pip install MySQL-python=1.2.5
+
 ## Alternative Installation for Debian/Ubuntu Linux
 
 Installing everything via pip as shown above means compiling some
@@ -109,7 +113,7 @@ You only need the plugins for any features that you are using in your Mediawiki 
 
 This step is optional, but it's nice as it matches the user names in the imported revision history with actual users in dokuwiki.
 
-For this step you need access to the MySQL database backing the mediawiki install, and local access to the dokuwiki root directory.
+For this step you need MySQL-python installed and access to the MySQL database backing the mediawiki install, and local access to the dokuwiki root directory.
 
 An example usage looks like this:
 
