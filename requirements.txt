@@ -1,7 +1,7 @@
 setuptools
 mwlib==0.15.14
 MySQL-python==1.2.5
-Pillow==2.8.1
+Pillow==8.1.1
 apipkg==1.4
 argparse==1.2.1
 bottle==0.12.8
