@@ -8,7 +8,7 @@ bottle==0.12.8
 gevent==1.0.1
 greenlet==0.4.6
 kitchen==1.2.1
-lxml==3.4.4
+lxml==4.6.3
 odfpy==0.9.6
 py==1.4.27
 pyPdf==1.13
