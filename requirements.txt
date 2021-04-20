@@ -10,7 +10,7 @@ greenlet==0.4.6
 kitchen==1.2.1
 lxml==3.4.4
 odfpy==0.9.6
-py==1.4.27
+py==1.10.0
 pyPdf==1.13
 pyparsing==1.5.6
 qserve==0.2.8
